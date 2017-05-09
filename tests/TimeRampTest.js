@@ -5,10 +5,37 @@ import {
   createMinVal,
   createStartVal,
   mergeResult,
+  getAveragePerIteration,
 } from '../lib/TimeRamp2'
 // import { assert } from 'chai'
 
 describe('TimeRamp', () => {
+  describe('getAveragePerIteration', () => {
+    it('iterations > count', () => {
+      // the perParent si defined through the parentIndex values
+      const iterations = 100
+      const count = 10
+      const res = getAveragePerIteration(iterations, count)
+      expect(res).toEqual({ average: 0, max: 2, min: 0 })
+    })
+    
+    it('iterations == count', () => {
+      // the perParent si defined through the parentIndex values
+      const iterations = 100
+      const count = 100
+      const res = getAveragePerIteration(iterations, count)
+      expect(res).toEqual({ average: 1, max: 2, min: 0 })
+    })
+
+    it('iterations < count', () => {
+      // the perParent si defined through the parentIndex values
+      const iterations = 10
+      const count = 100
+      const res = getAveragePerIteration(iterations, count)
+      expect(res).toEqual({ average: 10, max: 15, min: 5  })
+    })
+  })
+
   describe('createStartVal', () => {
     it('for root object no start, no existing val', () => {
       // the perParent si defined through the parentIndex values
@@ -57,15 +84,71 @@ describe('TimeRamp', () => {
       expect(res).toEqual({})
     })
 
-    it('hier weiter', () => {
-      expect(true).toEqual(false)
+    it('for child object no existing val, perParent', () => {
+      // the perParent si defined through the parentIndex values
+      const parentRamp = { add: 5, sum: 6 }
+      const parentIndex = { start: 2, end: 6 }
+      const currentTimeRamp = undefined
+      const start = 4
+      const res = createStartVal(
+        currentTimeRamp,
+        start,
+        parentRamp,
+        parentIndex
+      )
+      expect(res).toEqual({
+        add: 16,
+        tmpDist: [undefined, undefined, 4, 4, 4, 4],
+      })
     })
 
-    // 'for child object no existing val, perParent'
-    // 'for child object no existing val, perIteration'
-    // 'for child object existing val <, =, > start perParent'
-    // 'for child object existing val <, =, > start perIteration'
-    //
+    it('for child object no existing val, perIteration', () => {
+      // the perParent si defined through the parentIndex values
+      const parentRamp = { add: 5, sum: 6 }
+      const parentIndex = { start: 0, end: 6 }
+      const currentTimeRamp = undefined
+      const start = 4
+      const res = createStartVal(
+        currentTimeRamp,
+        start,
+        parentRamp,
+        parentIndex
+      )
+      expect(res).toEqual({ add: 24, tmpDist: [4, 4, 4, 4, 4, 4] })
+    })
+
+    it('for child object existing val <, =, > start perParent', () => {
+      // the perParent si defined through the parentIndex values
+      const parentRamp = { add: 5, sum: 6 }
+      const parentIndex = { start: 2, end: 6 }
+      const currentTimeRamp = { add: 15, tmpDist: [1, 1, 1, 4, 8] }
+      const start = 4
+      const res = createStartVal(
+        currentTimeRamp,
+        start,
+        parentRamp,
+        parentIndex
+      )
+      expect(res).toEqual({
+        add: 7,
+        tmpDist: [undefined, undefined, 3, 0, 0, 4],
+      })
+    })
+
+    it('for child object existing val <, =, > start perIteration', () => {
+      // the perParent si defined through the parentIndex values
+      const parentRamp = { add: 5, sum: 6 }
+      const parentIndex = { start: 0, end: 6 }
+      const currentTimeRamp = { add: 15, tmpDist: [1, 1, 1, 4, 8] }
+      const start = 4
+      const res = createStartVal(
+        currentTimeRamp,
+        start,
+        parentRamp,
+        parentIndex
+      )
+      expect(res).toEqual({ add: 13, tmpDist: [3, 3, 3, 0, 0, 4] })
+    })
   })
 
   describe('getParentIndices', () => {

@@ -126,6 +126,31 @@ export function createRamp({
 }
 
 /**
+ * Create the minimum and maximum change per iteration.
+ * It takes the count and devides it be the amount of iterations.
+ * this is the number of everage elememnts per iteration
+ * @param iterations {number} The count of iterations
+ * @param count {number} How many data should be created at whole
+ * @return result {object} The object with the created values
+ */
+export function getAveragePerIteration(iterations, count) {
+  assert(iterations && iterations > 0, 'Iterations must be greater than 0')
+  assert(count && count > 0, 'Count must be greater than 0')
+
+  const average = Math.floor(count / iterations)
+  const min = Math.floor(average / 2)
+  let max = Math.floor(min + average)
+  if (max <= 1) {
+    max = 2
+  }
+  return {
+    average,
+    min,
+    max,
+  }
+}
+
+/**
  * Creates the start values for the first iteration
  * @param currentRes {object} The already existing timeRamp data for this iteration
  * @param start {number} The start count of objects
@@ -134,18 +159,16 @@ export function createRamp({
  * @return res {object} A timeRamp object part
  */
 export function createStartVal(
-  currentTimeRamp,
+  currentTimeRamp = { tmpDist: [] },
   start,
   parentRamp,
   parentIndex
 ) {
-  assert(currentTimeRamp)
-
   if (start !== undefined && start > 0) {
     const res = {}
     if (parentRamp !== undefined) {
       // this is a child object
-      assert(parentIndex)
+      assert.ok(parentIndex)
 
       res.tmpDist = []
       let sumCount = 0
@@ -168,7 +191,6 @@ export function createStartVal(
       // we need to add additional values
       res.add = start - currentTimeRamp.add
     }
-
     return res
   }
 }
@@ -234,7 +256,7 @@ export function mergeResult(iteration, result, newResult) {
  * @return index {object} An object with a 'start' and 'end' property.
  */
 export function getParentIndices(objectType, parentRamp) {
-  assert(objectType)
+  assert.ok(objectType)
 
   if (parentRamp !== undefined) {
     const add = parentRamp.add ? parentRamp.add : 0
@@ -263,7 +285,7 @@ export function createMinVal(min, parentRamp, parentIndex) {
     const res = {}
     if (parentRamp !== undefined) {
       // this is a child object
-      assert(parentIndex)
+      assert.ok(parentIndex)
 
       res.tmpDist = []
       let sumCount = 0

@@ -123,6 +123,22 @@ Handles the child objects of a parent object. This is a recursiv function
 | parentName | <code>string</code> | The name of the parent object |
 
 
+* <a name="getAveragePerIteration"></a>
+
+## getAveragePerIteration(iterations, count) ⇒ <code>object</code>
+Create the minimum and maximum change per iteration.
+It takes the count and devides it be the amount of iterations.
+this is the number of everage elememnts per iteration
+
+**Kind**: global function  
+**Returns**: <code>object</code> - result  The object with the created values  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| iterations | <code>number</code> | The count of iterations |
+| count | <code>number</code> | How many data should be created at whole |
+
+
 * <a name="createStartVal"></a>
 
 ## createStartVal(currentRes, start, parentRamp, parentIndex) ⇒ <code>object</code>

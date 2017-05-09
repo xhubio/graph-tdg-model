@@ -2,14 +2,12 @@
   "parser": "babel-eslint",
 
   "plugins": [
-    "babel",
-    "mocha"
+    "babel"
   ],
 
   "env": {
     "es6": true,
     "node": true,
-    "mocha": true,
     "jest": true
   },
 
@@ -41,8 +39,6 @@
   },
 
   "rules": {
-    "mocha/no-exclusive-tests": "error",
-
     "babel/arrow-parens": [2, "as-needed"],
     "babel/array-bracket-spacing": [2, "never"],
     "babel/generator-star-spacing": [2, {"before": true, "after": false}],
