@@ -1,0 +1,11 @@
+graph TD
+
+    Application(Application)
+    Entitlement(Entitlement)
+    Account(Account)
+    Identity(Identity)
+
+    Application-->|1..n|Entitlement
+    Application-->|1..n|Account
+    Account-.->|1..1|Identity
+    Account-.->|1..n|Entitlement

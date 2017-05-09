@@ -1,0 +1,27 @@
+graph TD
+
+    company(Company)
+    account(account)
+    user(user)
+    statement(statement)
+    beneficiary(beneficiary)
+    transaction(transaction)
+    bank(bank)
+
+    gumbo(gumbo)
+    bazong(bazong)
+    flup(flup)
+
+
+    company-->|1..n|account
+    company-->|1..n|user
+    company-->|1..n|beneficiary
+    account-.->|1..1|bank
+    account-->|1..n|statement
+    statement-->|1..n|transaction
+    transaction-.->|n..1|beneficiary
+
+    gumbo-->|1..n|bazong
+    bazong-->|1..n|flup
+    account-.->|1..1|bazong
+    transaction-.->|n..1|flup

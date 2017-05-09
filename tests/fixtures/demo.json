@@ -1,0 +1,64 @@
+{
+  "timeShift": {
+    "iterations": 10,
+    "changes": {
+      "company": {
+        "start": 5,
+        "end": 700,
+        "type": "perIteration",
+        "min": 0,
+        "max": 100
+      },
+      "user": {
+        "start": 7,
+        "end": 4000,
+        "type": "perIteration",
+        "min": 1
+      },
+      "account": {
+        "end": 20000
+      },
+      "statement": {
+        "type": "perIteration",
+        "min": 1,
+        "max": 1
+      },
+      "transaction": {
+        "type": "perParent",
+        "min": 0,
+        "max": 1000
+      },
+      "beneficary": {
+        "start": 500,
+        "end": 200000,
+        "type": "perIteration",
+        "min": 1
+      },
+      "bank": {
+        "end": 15
+      }
+    }
+  },
+  "generationOrder": {
+    "company": {
+      "children": {
+        "user": {},
+        "beneficary": {},
+        "account": {
+          "children": {
+            "statement": {
+              "children": {
+                "transaction": {
+                  "links": {
+                    "beneficary": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "bank": {}
+  }
+}

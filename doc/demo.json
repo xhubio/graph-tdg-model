@@ -1,0 +1,174 @@
+{
+  "entities": {
+    "company": {
+      "id-fields": [
+        "name"
+      ],
+      "fields": [
+        "town",
+        "street",
+        "stree-number"
+      ]
+    },
+    "bank": {
+      "id-fields": [
+        "blz"
+      ],
+      "fields": [
+        "name"
+      ]
+    },
+    "user": {
+      "id-fields": [
+        "email"
+      ],
+      "fields": [
+        "last-name",
+        "first-name",
+        "town",
+        "street",
+        "stree-number"
+      ]
+    },
+    "account": {
+      "id-fields": [
+        "iban"
+      ],
+      "fields": [
+        "bic"
+      ]
+    },
+    "statement": {
+      "id-fields": [
+        "iban",
+        "date"
+      ]
+    },
+    "transaction": {
+      "id-fields": [
+        "iban",
+        "date",
+        "amount",
+        "beneficary-name",
+        "beneficary-iban",
+        "reason-for-transfer",
+        "type"
+      ]
+    },
+    "beneficary": {
+      "id-fields": [
+        "iban",
+        "name"
+      ]
+    }
+  },
+  "relations": [
+    {
+      "src": "bank",
+      "target": "account",
+      "type": "contains"
+    },
+    {
+      "src": "company",
+      "target": "user",
+      "type": "contains"
+    },
+    {
+      "src": "company",
+      "target": "beneficary",
+      "type": "contains"
+    },
+    {
+      "src": "company",
+      "target": "account",
+      "type": "reference"
+    },
+    {
+      "src": "account",
+      "target": "statement",
+      "type": "contains"
+    },
+    {
+      "src": "statement",
+      "target": "transaction",
+      "type": "contains"
+    },
+    {
+      "src": "transaction",
+      "target": "beneficary",
+      "type": "reference"
+    }
+  ],
+  "timeShift": {
+    "type": "day",
+    "amount": 1460,
+    "changes": {
+      "company": {
+        "start": 15,
+        "end": 200000
+      },
+      "user": {
+        "start": 250,
+        "end": 400000
+      },
+      "account": {
+        "start": 2000,
+        "end": 600000
+      },
+      "transaction": {
+        "start": 200000,
+        "end": 12000000000
+      },
+      "beneficary": {
+        "start": 180000,
+        "end": 100000000
+      },
+      "bank": {
+        "start": 10,
+        "end": 15
+      }
+    }
+  },
+  "generationOrder": {
+
+    "company": {
+
+			"children":{
+				"user": {
+					"config":{
+						"perParent": {
+		          "min": 1
+		        }
+					}
+	      },
+	      "account": {
+					"config":{
+						"perParent": {
+		          "min": 1
+		        }
+					},
+					"children":{
+						"statement": {
+							"config":{
+								"perParent": {
+									"min": 1,
+									"max": 1
+			          },
+			          "perIteration": {
+			            "min": 1,
+									"max": 1
+			          }
+							},
+							"children":{
+								"transaction": {}
+							}
+		        }
+					}
+	      },
+	      "beneficary": {}
+			}
+    },
+
+    "bank": {}
+  }
+}
