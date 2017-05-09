@@ -12,10 +12,11 @@ import demo from './fixtures/demo'
 logger.level = 'debug'
 
 describe('Main', () => {
-
   it('test me', () => {
-
-    const ramp = createTimeRamp({ timeShift: demo.timeShift, generationOrder: demo.generationOrder })
+    const ramp = createTimeRamp({
+      timeShift: demo.timeShift,
+      generationOrder: demo.generationOrder,
+    })
 
     // const iterations = demo.timeShift.iterations
     //
@@ -45,8 +46,5 @@ describe('Main', () => {
 
     console.log('---- test')
     console.log(JSON.stringify(ramp, null, 2))
-
   })
-
-
 })

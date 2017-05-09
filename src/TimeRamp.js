@@ -21,10 +21,9 @@ function getAveragePerIteration({ iterations, count }) {
   return {
     average,
     min,
-    max
+    max,
   }
 }
-
 
 /**
  * Create the ramp for the child components. These are depending on there parents
@@ -43,11 +42,20 @@ function getAveragePerIteration({ iterations, count }) {
  * @param name {string} The name of the object working on
  * @return result {object} The amount of data to be created per iteration
  */
-export function rampPerParent({ iterations, parentRamp, objectConfig, perParent, perIteration, name }) {
-  assert(iterations && iterations > 0, 'iterations must be defined and greater than 0')
+export function rampPerParent({
+  iterations,
+  parentRamp,
+  objectConfig,
+  perParent,
+  perIteration,
+  name,
+}) {
+  assert(
+    iterations && iterations > 0,
+    'iterations must be defined and greater than 0'
+  )
   assert(parentRamp, 'parentRamp must be defined')
   assert(name, 'name must be defined')
-
 
   const res = {}
   let changeSum = 0
@@ -59,7 +67,7 @@ export function rampPerParent({ iterations, parentRamp, objectConfig, perParent,
     // the parent may not have an entry for each iteration
     Object.keys(parentRamp).forEach(iter => {
       res[iter] = {
-        add: perParent.min
+        add: perParent.min,
       }
       changeSum += perParent.min
     })
@@ -77,11 +85,11 @@ export function rampPerParent({ iterations, parentRamp, objectConfig, perParent,
 
       if (res[i] === undefined) {
         res[i] = {
-          add: perIteration.min * lastSum
+          add: perIteration.min * lastSum,
         }
         changeSum += perIteration.min * lastSum
       } else if (res[i] < perIteration.min) {
-        const val = (perIteration.min * lastSum) - res[i]
+        const val = perIteration.min * lastSum - res[i]
         res[i] += val
         changeSum += val
       }
@@ -94,14 +102,19 @@ export function rampPerParent({ iterations, parentRamp, objectConfig, perParent,
   if (objectConfig !== undefined && objectConfig.end !== undefined) {
     // the amount of data not yet spread
     const restDataCount = objectConfig.end - changeSum
-    const average = getAveragePerIteration({ iterations, count: restDataCount })
+    const average = getAveragePerIteration({
+      iterations,
+      count: restDataCount,
+    })
 
     // -----------------------------------
     // we can add the values on every iteration for every parent
     // so we go on the sum field of the parent
     // -----------------------------------
     if (perIteration !== undefined) {
-      console.warn('Das stimmt so noch nicht. bei perIteration muss der Wert mit der Summe der parents multiplizeirt werden')
+      console.warn(
+        'Das stimmt so noch nicht. bei perIteration muss der Wert mit der Summe der parents multiplizeirt werden'
+      )
       // noch nicht klar ob der kommentar oben stimmt
 
       let i = 0
@@ -119,13 +132,20 @@ export function rampPerParent({ iterations, parentRamp, objectConfig, perParent,
         }
 
         // if the end value is reached, stop here
-        if (changeSum === objectConfig.end) { break }
+        if (changeSum === objectConfig.end) {
+          break
+        }
 
-        const addDataResult = addData({ average, rampObject: res[i], changeSum, end: objectConfig.end, max: objectConfig.max })
+        const addDataResult = addData({
+          average,
+          rampObject: res[i],
+          changeSum,
+          end: objectConfig.end,
+          max: objectConfig.max,
+        })
         changeSum = addDataResult.changeSum
         res[i] = addDataResult.rampObject
         i++
-
       }
     }
 
@@ -147,15 +167,22 @@ export function rampPerParent({ iterations, parentRamp, objectConfig, perParent,
         }
 
         // if the end value is reached, stop here
-        if (changeSum === objectConfig.end) { break }
+        if (changeSum === objectConfig.end) {
+          break
+        }
 
-        const addDataResult = addData({ average, rampObject: res[keys[i]], changeSum, end: objectConfig.end, max: objectConfig.max })
+        const addDataResult = addData({
+          average,
+          rampObject: res[keys[i]],
+          changeSum,
+          end: objectConfig.end,
+          max: objectConfig.max,
+        })
         changeSum = addDataResult.changeSum
         res[keys[i]] = addDataResult.rampObject
 
         i++
       }
-
     }
   }
 
@@ -166,8 +193,12 @@ export function rampPerParent({ iterations, parentRamp, objectConfig, perParent,
     // just add values for each parent
     let min = perParent.min
     let max = perParent.max
-    if (min === undefined) { min = 0 }
-    if (max === undefined) { max = 100 }
+    if (min === undefined) {
+      min = 0
+    }
+    if (max === undefined) {
+      max = 100
+    }
 
     console.log('............ bin da ----------')
 
@@ -175,12 +206,11 @@ export function rampPerParent({ iterations, parentRamp, objectConfig, perParent,
       const changeCount = Math.floor(Math.random() * (max - min)) + min
       if (changeCount > 0) {
         res[iter] = {
-          add: changeCount
+          add: changeCount,
         }
       }
     })
   }
-
 
   createSum({ ramp: res })
 
@@ -202,7 +232,6 @@ export function createRamp({ iterations, start = 0, end, min = 0, max, name }) {
   assert(end && end > 0, 'End must be greater than 0')
 
   const res = {}
-
 
   // set a default max value
   if (max === undefined) {
@@ -242,7 +271,6 @@ export function createRamp({ iterations, start = 0, end, min = 0, max, name }) {
     }
   }
 
-
   // -----------------------------------
   // get the average change per iteration
   // -----------------------------------
@@ -253,10 +281,11 @@ export function createRamp({ iterations, start = 0, end, min = 0, max, name }) {
     average = getAveragePerIteration({ iterations, count: end })
   } else {
     startidx = 1
-    average = getAveragePerIteration({ iterations: (iterations - 1), count: (end - changeSum) })
+    average = getAveragePerIteration({
+      iterations: iterations - 1,
+      count: end - changeSum,
+    })
   }
-
-
 
   // -----------------------------------
   // now spread the rest over the iterations
@@ -276,9 +305,17 @@ export function createRamp({ iterations, start = 0, end, min = 0, max, name }) {
     }
 
     // if the end value is reached, stop here
-    if (changeSum === end) { break }
+    if (changeSum === end) {
+      break
+    }
 
-    const addDataResult = addData({ average, rampObject: res[i], changeSum, end, max })
+    const addDataResult = addData({
+      average,
+      rampObject: res[i],
+      changeSum,
+      end,
+      max,
+    })
 
     changeSum = addDataResult.changeSum
     res[i] = addDataResult.rampObject
@@ -288,7 +325,6 @@ export function createRamp({ iterations, start = 0, end, min = 0, max, name }) {
 
   // create the sum field
   createSum({ ramp: res })
-
 
   return res
 }
@@ -306,12 +342,17 @@ function addData({ average, rampObject, changeSum, end, max }) {
   let res
   let maxChange = max
 
-  if (rampObject !== undefined) { res = rampObject }
-  if (maxChange === undefined) { maxChange = end }
+  if (rampObject !== undefined) {
+    res = rampObject
+  }
+  if (maxChange === undefined) {
+    maxChange = end
+  }
 
   // get current change count
-  let changeCount = Math.floor(Math.random() * (average.max - average.min)) + average.min
-  if ((changeSum + changeCount) > end) {
+  let changeCount =
+    Math.floor(Math.random() * (average.max - average.min)) + average.min
+  if (changeSum + changeCount > end) {
     changeCount = end - changeSum
   }
 
@@ -329,15 +370,14 @@ function addData({ average, rampObject, changeSum, end, max }) {
     if (res.add === undefined) {
       res.add = changeCount
     } else {
-      if ((res.add + changeCount) > maxChange) {
+      if (res.add + changeCount > maxChange) {
         changeCount = maxChange - res.add
       }
       res.add += changeCount
     }
   }
-  return { changeSum: (changeSum + changeCount), rampObject: res }
+  return { changeSum: changeSum + changeCount, rampObject: res }
 }
-
 
 /**
  * Takes a ramp up data object and enters the sum field
@@ -357,6 +397,5 @@ function createSum({ ramp }) {
       sum += ramp[key].add
       ramp[key].sum = sum
     }
-
   }
 }

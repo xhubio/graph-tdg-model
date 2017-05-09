@@ -4,7 +4,6 @@ import logger from 'winston'
 
 import assert from 'assert'
 
-
 /**
  * Create the time ramp and dependencies between the objects.
  * Defines how many object should be created for each iteration
@@ -38,8 +37,14 @@ export default function createTimeRamp({ timeShift, generationOrder }) {
 
   // iterate the root objects
   Object.keys(generationOrder).forEach(objectName => {
-    logger.debug(`Create time ramp for '${objectName}'`, { function: 'createTimeRamp', object: objectName })
-    const objectConfig = { ...timeShift.changes[objectName], ...generationOrder[objectName] }
+    logger.debug(`Create time ramp for '${objectName}'`, {
+      function: 'createTimeRamp',
+      object: objectName,
+    })
+    const objectConfig = {
+      ...timeShift.changes[objectName],
+      ...generationOrder[objectName],
+    }
     objectConfig.name = objectName
 
     const params = {
@@ -65,15 +70,23 @@ export default function createTimeRamp({ timeShift, generationOrder }) {
  * @param parentName {string} The name of the parent object
  * @return result {object} The amount of data to be created per iteration
  */
-export function createRamp({ iterations, objectConfig, parentTimeRamp, parentName }) {
+export function createRamp({
+  iterations,
+  objectConfig,
+  parentTimeRamp,
+  parentName,
+}) {
   const res = {}
 
   let changeSumAll = 0 // the summary count of all objects for all iterations
 
   // const name = objectConfig.name
 
-  logger.debug(`Create time ramp for '${objectConfig.name}'`, { function: 'createRamp', object: objectConfig.name, parent: parentName })
-
+  logger.debug(`Create time ramp for '${objectConfig.name}'`, {
+    function: 'createRamp',
+    object: objectConfig.name,
+    parent: parentName,
+  })
 
   for (let i = 0; i < iterations; i++) {
     let parentTimeRampPart
@@ -85,28 +98,32 @@ export function createRamp({ iterations, objectConfig, parentTimeRamp, parentNam
     // ------------------
     // create min value
     // ------------------
-    const resMin = createMinVal(objectConfig.min, parentTimeRampPart, parentIndex)
+    const resMin = createMinVal(
+      objectConfig.min,
+      parentTimeRampPart,
+      parentIndex
+    )
     changeSumAll = addChangeSum(changeSumAll, resMin)
     mergeResult(i, res, resMin)
-
 
     // ------------------
     // create start value
     // ------------------
     if (i === 0) {
-      const resStart = createStartVal(objectConfig.start, parentTimeRampPart, parentIndex)
+      const resStart = createStartVal(
+        objectConfig.start,
+        parentTimeRampPart,
+        parentIndex
+      )
       changeSumAll = addChangeSum(changeSumAll, resStart)
       mergeResult(i, res, resStart)
     }
-
-
   }
 
   logger.debug(`Result`, { function: 'createRamp', result: res })
 
   return res
 }
-
 
 /**
  * Creates the start values for the first iteration
@@ -116,7 +133,12 @@ export function createRamp({ iterations, objectConfig, parentTimeRamp, parentNam
  * @param parentIndex {object} An object with a 'start' and 'end' property.
  * @return res {object} A timeRamp object part
  */
-export function createStartVal(currentTimeRamp, start, parentRamp, parentIndex) {
+export function createStartVal(
+  currentTimeRamp,
+  start,
+  parentRamp,
+  parentIndex
+) {
   assert(currentTimeRamp)
 
   if (start !== undefined && start > 0) {
@@ -144,14 +166,12 @@ export function createStartVal(currentTimeRamp, start, parentRamp, parentIndex) 
       res.add = start
     } else if (currentTimeRamp.add < start) {
       // we need to add additional values
-      res.add = (start - currentTimeRamp.add)
+      res.add = start - currentTimeRamp.add
     }
 
     return res
   }
 }
-
-
 
 /**
  * Updates the change sum. The new value will be returned
@@ -173,7 +193,6 @@ function addChangeSum(changeSum, newResult) {
  * @param newResult {object} The result to be merged (only one iteration)
  */
 export function mergeResult(iteration, result, newResult) {
-
   if (newResult !== undefined) {
     if (result[iteration] === undefined) {
       result[iteration] = newResult
@@ -185,10 +204,12 @@ export function mergeResult(iteration, result, newResult) {
         part.add = newResult.add
       }
 
-
       if (part.tmpDist !== undefined && newResult.tmpDist !== undefined) {
         for (let i = 0; i < newResult.tmpDist.length; i++) {
-          if (part.tmpDist[i] !== undefined && newResult.tmpDist[i] !== undefined) {
+          if (
+            part.tmpDist[i] !== undefined &&
+            newResult.tmpDist[i] !== undefined
+          ) {
             part.tmpDist[i] += newResult.tmpDist[i]
           } else if (newResult.tmpDist[i] !== undefined) {
             part.tmpDist[i] = newResult.tmpDist[i]
@@ -200,8 +221,6 @@ export function mergeResult(iteration, result, newResult) {
     }
   }
 }
-
-
 
 // type parentIndex = {
 // 	start : number,
@@ -226,7 +245,7 @@ export function getParentIndices(objectType, parentRamp) {
     }
     return {
       start,
-      end
+      end,
     }
   }
   return undefined

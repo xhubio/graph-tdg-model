@@ -1,10 +1,14 @@
 'use strict'
 
-import { getParentIndices, createMinVal, createStartVal, mergeResult } from '../lib/TimeRamp2'
+import {
+  getParentIndices,
+  createMinVal,
+  createStartVal,
+  mergeResult,
+} from '../lib/TimeRamp2'
 // import { assert } from 'chai'
 
 describe('TimeRamp', () => {
-
   describe('createStartVal', () => {
     it('for root object no start, no existing val', () => {
       // the perParent si defined through the parentIndex values
@@ -62,16 +66,13 @@ describe('TimeRamp', () => {
     // 'for child object existing val <, =, > start perParent'
     // 'for child object existing val <, =, > start perIteration'
     //
-
   })
-
-
 
   describe('getParentIndices', () => {
     it('perIteration', () => {
       const parentRamp = {
         add: 5,
-        sum: 11
+        sum: 11,
       }
       const index = getParentIndices('perIteration', parentRamp)
       expect(index).toEqual({ start: 0, end: 11 })
@@ -80,7 +81,7 @@ describe('TimeRamp', () => {
     it('perParent', () => {
       const parentRamp = {
         add: 5,
-        sum: 11
+        sum: 11,
       }
       const index = getParentIndices('perParent', parentRamp)
       expect(index).toEqual({ start: 6, end: 11 })
@@ -93,7 +94,7 @@ describe('TimeRamp', () => {
       const min = 2
       const res = createMinVal(min, undefined, undefined)
       expect(res).toEqual({
-        add: 2
+        add: 2,
       })
     })
 
@@ -102,11 +103,11 @@ describe('TimeRamp', () => {
       const min = 2
       const parentRamp = {
         add: 5,
-        sum: 11
+        sum: 11,
       }
       const parentIndex = {
         start: 6,
-        end: 11
+        end: 11,
       }
       const res = createMinVal(min, parentRamp, parentIndex)
       expect(res).toEqual({
@@ -122,8 +123,8 @@ describe('TimeRamp', () => {
           2,
           2,
           2,
-          2
-        ]
+          2,
+        ],
       })
     })
 
@@ -132,28 +133,16 @@ describe('TimeRamp', () => {
       const min = 2
       const parentRamp = {
         add: 5,
-        sum: 11
+        sum: 11,
       }
       const parentIndex = {
         start: 0,
-        end: 11
+        end: 11,
       }
       const res = createMinVal(min, parentRamp, parentIndex)
       expect(res).toEqual({
         add: 22,
-        tmpDist: [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2
-        ]
+        tmpDist: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
       })
     })
 
@@ -162,11 +151,11 @@ describe('TimeRamp', () => {
       const min = 0
       const parentRamp = {
         add: 5,
-        sum: 11
+        sum: 11,
       }
       const parentIndex = {
         start: 0,
-        end: 3
+        end: 3,
       }
       const res = createMinVal(min, parentRamp, parentIndex)
       expect(res).toEqual(undefined)
@@ -191,7 +180,10 @@ describe('TimeRamp', () => {
       const result = { '1': { add: 5, sum: 7 } }
       const newResult = { sum: 10, add: 3 }
       mergeResult(2, result, newResult)
-      expect(result).toEqual({ '1': { add: 5, sum: 7 }, '2': { add: 3, sum: 10 } })
+      expect(result).toEqual({
+        '1': { add: 5, sum: 7 },
+        '2': { add: 3, sum: 10 },
+      })
     })
 
     it('result.add for iteration is undefined', () => {
@@ -235,6 +227,5 @@ describe('TimeRamp', () => {
       mergeResult(1, result, newResult)
       expect(result).toEqual({ '1': { add: 10, tmpDist: [2, 4, 3, 2] } })
     })
-
   })
 })

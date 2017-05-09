@@ -23,7 +23,11 @@ import { createRamp, rampPerParent } from './TimeRamp'
 // 	objectConfig: ChangeDefinition
 // }
 
-export default function doit({ timeShift, generationOrder, parentConfig = [] }) {
+export default function doit({
+  timeShift,
+  generationOrder,
+  parentConfig = [],
+}) {
   const result = {}
 
   if (generationOrder === undefined) {
@@ -32,7 +36,6 @@ export default function doit({ timeShift, generationOrder, parentConfig = [] }) 
 
   // for how many iteration the data should be created
   const iterations = timeShift.iterations
-
 
   Object.keys(generationOrder).forEach(name => {
     console.log(`Work on generation of: ${name}`)
@@ -43,7 +46,11 @@ export default function doit({ timeShift, generationOrder, parentConfig = [] }) 
     if (parentConfig.length === 0) {
       // in this case just create the ramp without any other constraints
       assert(objectConfig, 'objectConfig')
-      ramp = createRamp({ iterations: timeShift.iterations, ...objectConfig, name })
+      ramp = createRamp({
+        iterations: timeShift.iterations,
+        ...objectConfig,
+        name,
+      })
       // console.log(JSON.stringify(ramp, null, 2))
     } else {
       const parentConfigElement = parentConfig[parentConfig.length - 1]
@@ -61,7 +68,14 @@ export default function doit({ timeShift, generationOrder, parentConfig = [] }) 
         perIteration = generationOrder[name].config.perIteration
       }
 
-      ramp = rampPerParent({ iterations, parentRamp, objectConfig, perParent, perIteration, name })
+      ramp = rampPerParent({
+        iterations,
+        parentRamp,
+        objectConfig,
+        perParent,
+        perIteration,
+        name,
+      })
     }
 
     result[name] = ramp
@@ -73,11 +87,15 @@ export default function doit({ timeShift, generationOrder, parentConfig = [] }) 
       parentConfig.push({
         name,
         ramp,
-        objectConfig
+        objectConfig,
       })
 
       // work on the children
-      const childrenRamp = doit({ timeShift, generationOrder: generationOrder[name].children, parentConfig })
+      const childrenRamp = doit({
+        timeShift,
+        generationOrder: generationOrder[name].children,
+        parentConfig,
+      })
       assert(childrenRamp, 'childrenRamp must not be undefined')
 
       parentConfig.pop()
@@ -92,9 +110,7 @@ export default function doit({ timeShift, generationOrder, parentConfig = [] }) 
         result[rampName] = childrenRamp[rampName]
       })
     }
-
   })
-
 
   return result
 }
