@@ -27,7 +27,7 @@
     "test": "npm run src_format && npm run src_lint && npm run src_doc_html && npm run src_doc_md && npm run build && yarn jest",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "prepublish": "npm run build",
-    "debug": "node --debug-brk --inspect ./node_modules/.bin/jest -i --env jest-environment-node-debug"
+    "debug": "npm run build && node --debug-brk --inspect ./node_modules/.bin/jest -i --env jest-environment-node-debug"
   },
   "test": "jest --coverage",
   "test:watch": "jest --watch",

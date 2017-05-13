@@ -1,50 +1,74 @@
 'use strict'
 
-import logger from 'winston'
+const createTimeRamp = require('../lib/TimeRamp2').createTimeRamp
 
-import createTimeRamp from '../lib/TimeRamp2'
+const TIME_SHIFT = {
+  iterations: 4 * 260,
+  changes: {
+    company: {
+      start: 100,
+      end: 200000,
+      type: 'perIteration',
+      min: 1,
+      max: 1000,
+    },
+    user: {
+      start: 2,
+      end: 400000,
+      type: 'perParent',
+      min: 1,
+    },
+    account: {
+      end: 200000 * 5,
+      min: 1,
+      type: 'perParent',
+    },
+    statement: {
+      type: 'perIteration',
+      min: 1,
+      max: 1,
+    },
+    transaction: {
+      type: 'perParent',
+      min: 0,
+      max: 10000,
+    },
+    beneficary: {
+      start: 500,
+      end: 200000,
+      type: 'perParent',
+      min: 1,
+    },
+    bank: {
+      end: 15,
+    },
+  },
+}
 
-import demo from './fixtures/demo'
-// import fs from 'fs'
+const GENERATION_ORDER = {
+  company: {
+    children: {
+      user: {},
+      beneficary: {},
+      account: {
+        // children: {
+        //   statement: {
+        //     children: {
+        //       transaction: {
+        //         links: {
+        //           beneficary: {},
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
+      },
+    },
+  },
+  bank: {},
+}
 
-// import { assert } from 'chai'
-
-logger.level = 'debug'
-
-describe('Main', () => {
-  it('test me', () => {
-    const ramp = createTimeRamp({
-      timeShift: demo.timeShift,
-      generationOrder: demo.generationOrder,
-    })
-
-    // const iterations = demo.timeShift.iterations
-    //
-    // const res = {}
-    // const keys = Object.keys(ramp)
-    //
-    // keys.forEach(key => {
-    //   res[key] = []
-    // })
-    // for (let i = 0; i < iterations; i++) {
-    //   keys.forEach(key => {
-    //     let sum
-    //     if (ramp[key][i] !== undefined && ramp[key][i].sum !== undefined) {
-    //       sum = ramp[key][i].sum
-    //     }
-    //     res[key].push(sum)
-    //   })
-    // }
-    //
-    // const data = []
-    // keys.forEach(key => {
-    //   data.push(`${key};` + res[key].join(';'))
-    // })
-    //
-    // // eslint-disable-next-line no-sync
-    // fs.writeFileSync('./tests/volatile/data.csv', data.join(`\n`), { encoding: 'utf-8' })
-
-    console.log('---- test')
-    console.log(JSON.stringify(ramp, null, 2))
-  })
+createTimeRamp({
+  timeShift: TIME_SHIFT,
+  generationOrder: GENERATION_ORDER,
 })

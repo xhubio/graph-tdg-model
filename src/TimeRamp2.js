@@ -1,8 +1,10 @@
 'use strict'
 
 import logger from 'winston'
-
 import assert from 'assert'
+
+// TODO: wenn perIteration. Dann die Daten nur erzeugen wenn sum > 0. Wenn zu diesem Zeitpunkt noch kein Parent da ist
+// können auch noch keine children existieren!!!
 
 /**
  * Create the time ramp and dependencies between the objects.
@@ -23,47 +25,71 @@ import assert from 'assert'
  * in the sub array defining a range of elements.
  *
  */
-export default function createTimeRamp({ timeShift, generationOrder }) {
+export function createTimeRamp({ timeShift, generationOrder }) {
+  assert.ok(timeShift, 'TimeShift is not set')
+  assert.ok(generationOrder, 'GenerationOrder is not set')
   logger.debug(`Create time ramp start'`, { function: 'createTimeRamp' })
-  console.log('häää')
 
   // stores the created time ramp
-  const resultTimeRamp = {}
+  const result = {}
 
-  // console.log(JSON.stringify(timeShift, null, 2))
-
-  // for how many iteration the data should be created
-  const iterations = timeShift.iterations
-
-  // iterate the root objects
-  Object.keys(generationOrder).forEach(objectName => {
-    logger.debug(`Create time ramp for '${objectName}'`, {
-      function: 'createTimeRamp',
-      object: objectName,
-    })
-    const objectConfig = {
-      ...timeShift.changes[objectName],
-      ...generationOrder[objectName],
-    }
-    objectConfig.name = objectName
-
-    const params = {
-      iterations,
-      objectConfig,
-    }
-
-    // create the root data objects
-    const res = createRamp(params)
-    Object.keys(res).forEach(name => {
-      resultTimeRamp[name] = res[name]
-    })
+  const resChildren = workOnChildren(timeShift, generationOrder)
+  Object.keys(resChildren).forEach(name => {
+    result[name] = resChildren[name]
   })
-
-  return resultTimeRamp
+  return result
 }
 
 /**
- * Handles the child objects of a parent object. This is a recursiv function
+ * Works on the elements of the generationOrder. It traveres this tree
+ * recursivly.
+ * @param timeShift {number} The timeShift configuration
+ * @param generationOrder {object} The tree defining how to generate the objects
+ * @param parentTimeRamp {object} The ramp up data object from the parent object
+ * @param parentName {string} The name of the parent object
+ * @return result {object} The amount of data to be created per iteration
+ */
+function workOnChildren(
+  timeShift,
+  generationOrder,
+  parentTimeRamp,
+  parentName
+) {
+  const result = {}
+  if (generationOrder !== undefined) {
+    Object.keys(generationOrder).forEach(childName => {
+      const params = {
+        iterations: timeShift.iterations,
+        parentName,
+        parentTimeRamp,
+        objectConfig: {
+          name: childName,
+          ...timeShift.changes[childName],
+          ...generationOrder[childName],
+        },
+      }
+
+      // create the data for the current child object
+      result[childName] = createRamp(params)
+
+      // create the data for all the children
+      const resChildren = workOnChildren(
+        timeShift,
+        generationOrder[childName].children,
+        result[childName],
+        childName
+      )
+      Object.keys(resChildren).forEach(name => {
+        result[name] = resChildren[name]
+      })
+    })
+  }
+
+  return result
+}
+
+/**
+ * Handles the child objects of a parent object.
  * @param iterations {number} The count of iterations
  * @param objectConfig {object} The configuration of this object
  * @param parentRamp {object} The ramp up data object from the parent object
@@ -88,16 +114,28 @@ export function createRamp({
     parent: parentName,
   })
 
+  // ------------------
+  // Set min and start values
+  // ------------------
+  let lastParentSum = 0 // the sum of the last parent value
   for (let i = 0; i < iterations; i++) {
     let parentTimeRampPart
     if (parentTimeRamp !== undefined) {
       parentTimeRampPart = parentTimeRamp[i]
+      if (
+        parentTimeRampPart !== undefined &&
+        parentTimeRampPart.sum !== undefined
+      ) {
+        lastParentSum = parentTimeRampPart.sum
+      }
     }
-    const parentIndex = getParentIndices(objectConfig, parentTimeRampPart)
+    const parentIndex = getParentIndices(
+      objectConfig,
+      parentTimeRampPart,
+      lastParentSum
+    )
 
-    // ------------------
-    // create min value
-    // ------------------
+    // if (parentIndex !== undefined) {
     const resMin = createMinVal(
       objectConfig.min,
       parentTimeRampPart,
@@ -105,12 +143,12 @@ export function createRamp({
     )
     changeSumAll = addChangeSum(changeSumAll, resMin)
     mergeResult(i, res, resMin)
+    // }
 
-    // ------------------
     // create start value
-    // ------------------
-    if (i === 0) {
+    if (i === 0 && parentIndex !== undefined) {
       const resStart = createStartVal(
+        res[i],
         objectConfig.start,
         parentTimeRampPart,
         parentIndex
@@ -120,9 +158,226 @@ export function createRamp({
     }
   }
 
+  // ------------------
+  // Set the other values if needed
+  // ------------------
+  if (
+    objectConfig.end !== undefined &&
+    objectConfig.end > 0 &&
+    objectConfig.end > changeSumAll
+  ) {
+    const countMissing = objectConfig.end - changeSumAll
+    const average = getAveragePerIteration(iterations, countMissing)
+
+    // check if we could set data only on existing iterations or also for new ones.
+    // Root objects could always be set for all iterations. If a child, then the object
+    // type is relevant
+    let setForAllIterations = false
+    if (parentTimeRamp === undefined || objectConfig.type === 'perIteration') {
+      setForAllIterations = true
+    }
+
+    let i = 0
+    let lastChangeSum = changeSumAll
+    lastParentSum = 0
+    while (changeSumAll < objectConfig.end) {
+      if (i === iterations) {
+        // the end was reached, restart
+        i = 0
+        if (changeSumAll === lastChangeSum) {
+          // in this iteration was now new data added. This is in error
+          logger.error(`No new items added in iteration ${i}`)
+          break
+        } else {
+          lastChangeSum = changeSumAll
+        }
+      }
+
+      // if the end value is reached, stop here
+      if (changeSumAll === objectConfig.end) {
+        break
+      }
+
+      if (setForAllIterations || res[i] !== undefined) {
+        let parentTimeRampPart
+        if (parentTimeRamp !== undefined) {
+          parentTimeRampPart = parentTimeRamp[i]
+          if (
+            parentTimeRampPart !== undefined &&
+            parentTimeRampPart.sum !== undefined
+          ) {
+            lastParentSum = parentTimeRampPart.sum
+          }
+        }
+        const parentIndex = getParentIndices(
+          objectConfig,
+          parentTimeRampPart,
+          lastParentSum
+        )
+
+        // if (parentIndex !== undefined) {
+        // create the data
+        const resData = createSpreadData({
+          average,
+          changeSum: changeSumAll,
+          parentRamp: parentTimeRampPart,
+          parentIndex,
+          end: objectConfig.end,
+          max: objectConfig.max,
+          currentTimeRamp: res[i],
+        })
+
+        changeSumAll = addChangeSum(changeSumAll, resData)
+        mergeResult(i, res, resData)
+        // }
+      }
+      i++
+    }
+  }
+
   logger.debug(`Result`, { function: 'createRamp', result: res })
 
+  createSum(res)
+
   return res
+}
+
+/**
+ * Takes a ramp up data object and enters the sum field and also adjust the tmpDist to dist Array
+ * @param ramp {object} The data ramp to add the sum field
+ */
+export function createSum(ramp) {
+  function compareNumbers(a, b) {
+    return parseInt(a, 10) - parseInt(b, 10)
+  }
+
+  // ensures that the iterations are sorted correctly
+  const iterations = Object.keys(ramp)
+  iterations.sort(compareNumbers)
+
+  let sum = 0 // the current sum value
+  let lastEnd = 0 // the end of the last range value
+
+  for (let i = 0; i < iterations.length; i++) {
+    const iteration = iterations[i]
+    if (ramp[iteration].add !== undefined) {
+      // convert the array of values to be added into an array of ranges
+      if (ramp[iteration].tmpDist !== undefined) {
+        ramp[iteration].dist = []
+        ramp[iteration].tmpDist.forEach(val => {
+          if (val === undefined) {
+            ramp[iteration].dist.push(undefined)
+          } else {
+            if (val === 1) {
+              ramp[iteration].dist.push(lastEnd)
+            } else {
+              ramp[iteration].dist.push([lastEnd, lastEnd + val - 1])
+            }
+            lastEnd += val
+          }
+        })
+        delete ramp[iteration].tmpDist
+      }
+
+      // create the sum field
+      sum += ramp[iteration].add
+      ramp[iteration].sum = sum
+    }
+  }
+}
+
+/**
+ * Adds the data for a specific iteration.
+ * @param average {object} The computed average object
+ * @param changeSum {number} The current change summary value. This value must not exceed the end value
+ * @param parentRamp {object} The data ramp object of the parent
+ * @param parentIndex {object} The index to use for the parent ramp
+ * @param end {number} The maximal amount of data to create
+ * @param max {number} The maximal amount of data to be added in one iteration
+ * @return res {object} The ramp part of the current index and the changeSum
+ */
+export function createSpreadData({
+  average,
+  changeSum,
+  parentRamp,
+  parentIndex,
+  end,
+  max,
+  currentTimeRamp = { tmpDist: [] },
+}) {
+  assert.ok(average)
+  // assert.ok(changeSum)
+  assert.ok(end)
+
+  // the maximumm count to add
+  const maxChange = max ? max : end
+
+  // get current change count
+  let changeCount =
+    Math.floor(Math.random() * (average.max - average.min)) + average.min
+  if (changeSum + changeCount > end) {
+    changeCount = end - changeSum
+  }
+  if (changeCount > maxChange) {
+    changeCount = maxChange
+  }
+
+  // set the change count to the result object
+  if (changeCount > 0) {
+    // initialize the object for this iteration
+    const res = {
+      add: changeCount,
+    }
+
+    if (parentRamp !== undefined) {
+      // this is a child object. We need to spread the data under the parent objects
+
+      res.tmpDist = []
+
+      let countToSpread = changeCount
+      const spreadAverage = getAveragePerIteration(
+        parentIndex.end - parentIndex.start,
+        countToSpread
+      )
+
+      while (countToSpread > 0) {
+        // Get the count to be set in this iteration
+        let count =
+          Math.floor(Math.random() * (spreadAverage.max - spreadAverage.min)) +
+          spreadAverage.min
+
+        if (count > max) {
+          count = max
+        }
+        if (count > countToSpread) {
+          count = countToSpread
+        }
+
+        if (count > 0) {
+          // get the index for which parent the data will be set
+          const parentIdx =
+            Math.floor(Math.random() * (parentIndex.end - parentIndex.start)) +
+            parentIndex.start
+          if (res.tmpDist[parentIdx] === undefined) {
+            res.tmpDist[parentIdx] = 0
+          }
+
+          if (
+            currentTimeRamp[parentIdx] !== undefined &&
+            currentTimeRamp[parentIdx] > 0 &&
+            currentTimeRamp[parentIdx] + count > max
+          ) {
+            // decrease the count as necessary
+            count = max - currentTimeRamp[parentIdx]
+          }
+          res.tmpDist[parentIdx] += count
+          countToSpread -= count
+        }
+      }
+    }
+
+    return res
+  }
 }
 
 /**
@@ -253,9 +508,10 @@ export function mergeResult(iteration, result, newResult) {
  * it will return undefined
  * @param objectType {string} The config type of this object (perParent|perIteration)
  * @param parentRamp {object} The time ramp of the parent object
+ * @param lastParentSum {number} The last sum. used by perIteration. In this case the parentRamp might be undefined
  * @return index {object} An object with a 'start' and 'end' property.
  */
-export function getParentIndices(objectType, parentRamp) {
+export function getParentIndices(objectType, parentRamp, lastParentSum) {
   assert.ok(objectType)
 
   if (parentRamp !== undefined) {
@@ -268,6 +524,11 @@ export function getParentIndices(objectType, parentRamp) {
     return {
       start,
       end,
+    }
+  } else if (objectType === 'perIteration') {
+    return {
+      start: 0,
+      end: lastParentSum,
     }
   }
   return undefined

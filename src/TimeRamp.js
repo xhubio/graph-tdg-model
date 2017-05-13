@@ -380,10 +380,11 @@ function addData({ average, rampObject, changeSum, end, max }) {
 }
 
 /**
- * Takes a ramp up data object and enters the sum field
+ * Takes a ramp up data object and enters the sum field.
+ * The given data will be updated.
  * @param ramp {object} The data ramp to add the sum field
  */
-function createSum({ ramp }) {
+function createSum(ramp) {
   function compareNumbers(a, b) {
     return parseInt(a, 10) - parseInt(b, 10)
   }

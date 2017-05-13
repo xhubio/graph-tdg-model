@@ -98,7 +98,8 @@ Adds the data for a specified iteration
 * <a name="createSum"></a>
 
 ## createSum(ramp)
-Takes a ramp up data object and enters the sum field
+Takes a ramp up data object and enters the sum field.
+The given data will be updated.
 
 **Kind**: global function  
 
@@ -107,10 +108,49 @@ Takes a ramp up data object and enters the sum field
 | ramp | <code>object</code> | The data ramp to add the sum field |
 
 
+* <a name="createTimeRamp"></a>
+
+## createTimeRamp()
+Create the time ramp and dependencies between the objects.
+Defines how many object should be created for each iteration
+
+The created data ramo looks like this:
+ {
+ 		"<objectName>": {
+    		"<iteration>": {
+       "add"    : 5,												// how many objects will be added in this iteration
+       "sum"    : 123											// how many objects where already added by this and the other iterations
+				"parent" : "<parentObjectName>",		// only set if this is not a root object
+				"dist"   : [[0,16], [17,45], [46,66], [67,97]] // how many new objectz belong to which parent
+    }
+ }
+The 'dist' property is an array. Each position in this array references the parent element. In this example
+the parent has 4 elements. The first parent element will get the child element 0 to 16. So the elements
+in the sub array defining a range of elements.
+
+**Kind**: global function  
+
+* <a name="workOnChildren"></a>
+
+## workOnChildren(timeShift, generationOrder, parentTimeRamp, parentName) ⇒ <code>object</code>
+Works on the elements of the generationOrder. It traveres this tree
+recursivly.
+
+**Kind**: global function  
+**Returns**: <code>object</code> - result  The amount of data to be created per iteration  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| timeShift | <code>number</code> | The timeShift configuration |
+| generationOrder | <code>object</code> | The tree defining how to generate the objects |
+| parentTimeRamp | <code>object</code> | The ramp up data object from the parent object |
+| parentName | <code>string</code> | The name of the parent object |
+
+
 * <a name="createRamp"></a>
 
 ## createRamp(iterations, objectConfig, parentRamp, parentName) ⇒ <code>object</code>
-Handles the child objects of a parent object. This is a recursiv function
+Handles the child objects of a parent object.
 
 **Kind**: global function  
 **Returns**: <code>object</code> - result  The amount of data to be created per iteration  
@@ -121,6 +161,36 @@ Handles the child objects of a parent object. This is a recursiv function
 | objectConfig | <code>object</code> | The configuration of this object |
 | parentRamp | <code>object</code> | The ramp up data object from the parent object |
 | parentName | <code>string</code> | The name of the parent object |
+
+
+* <a name="createSum"></a>
+
+## createSum(ramp)
+Takes a ramp up data object and enters the sum field and also adjust the tmpDist to dist Array
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ramp | <code>object</code> | The data ramp to add the sum field |
+
+
+* <a name="createSpreadData"></a>
+
+## createSpreadData(average, changeSum, parentRamp, parentIndex, end, max) ⇒ <code>object</code>
+Adds the data for a specific iteration.
+
+**Kind**: global function  
+**Returns**: <code>object</code> - res  The ramp part of the current index and the changeSum  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| average | <code>object</code> | The computed average object |
+| changeSum | <code>number</code> | The current change summary value. This value must not exceed the end value |
+| parentRamp | <code>object</code> | The data ramp object of the parent |
+| parentIndex | <code>object</code> | The index to use for the parent ramp |
+| end | <code>number</code> | The maximal amount of data to create |
+| max | <code>number</code> | The maximal amount of data to be added in one iteration |
 
 
 * <a name="getAveragePerIteration"></a>
@@ -185,7 +255,7 @@ Merges the new result into the existing one
 
 * <a name="getParentIndices"></a>
 
-## getParentIndices(objectType, parentRamp) ⇒ <code>object</code>
+## getParentIndices(objectType, parentRamp, lastParentSum) ⇒ <code>object</code>
 Creates the index ranges for the array to be filled. If the parentRamp is not defined
 it will return undefined
 
@@ -196,6 +266,7 @@ it will return undefined
 | --- | --- | --- |
 | objectType | <code>string</code> | The config type of this object (perParent|perIteration) |
 | parentRamp | <code>object</code> | The time ramp of the parent object |
+| lastParentSum | <code>number</code> | The last sum. used by perIteration. In this case the parentRamp might be undefined |
 
 
 * <a name="createMinVal"></a>
@@ -212,28 +283,6 @@ Creates the min values for one iteration
 | parentRamp | <code>object</code> | The time ramp of the parent object |
 | parentIndex | <code>object</code> | An object with a 'start' and 'end' property. |
 
-
-* <a name="module.exports"></a>
-
-## module.exports()
-Create the time ramp and dependencies between the objects.
-Defines how many object should be created for each iteration
-
-The created data ramo looks like this:
- {
- 		"<objectName>": {
-    		"<iteration>": {
-       "add"    : 5,												// how many objects will be added in this iteration
-       "sum"    : 123											// how many objects where already added by this and the other iterations
-				"parent" : "<parentObjectName>",		// only set if this is not a root object
-				"dist"   : [[0,16], [17,45], [46,66], [67,97]] // how many new objectz belong to which parent
-    }
- }
-The 'dist' property is an array. Each position in this array references the parent element. In this example
-the parent has 4 elements. The first parent element will get the child element 0 to 16. So the elements
-in the sub array defining a range of elements.
-
-**Kind**: static method of <code>module</code>  
 
 * * *
 
