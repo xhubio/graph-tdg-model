@@ -1,6 +1,10 @@
 {
   "parser": "babel-eslint",
 
+  "extends": [
+    "prettier"
+  ],
+
   "plugins": [
     "babel"
   ],
@@ -186,7 +190,7 @@
     "object-shorthand": [2, "always"],
     "one-var": [2, "never"],
     "operator-assignment": [2, "always"],
-    "operator-linebreak": [2, "after"],
+    
     "padded-blocks": 0,
     "prefer-const": 2,
     "prefer-reflect": 0,

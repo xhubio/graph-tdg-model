@@ -150,7 +150,7 @@ recursivly.
 * <a name="createRamp"></a>
 
 ## createRamp(iterations, objectConfig, parentRamp, parentName) ⇒ <code>object</code>
-Handles the child objects of a parent object.
+Creates the timeramp for one object
 
 **Kind**: global function  
 **Returns**: <code>object</code> - result  The amount of data to be created per iteration  
@@ -175,22 +175,18 @@ Takes a ramp up data object and enters the sum field and also adjust the tmpDist
 | ramp | <code>object</code> | The data ramp to add the sum field |
 
 
-* <a name="createSpreadData"></a>
+* <a name="addChangeSum"></a>
 
-## createSpreadData(average, changeSum, parentRamp, parentIndex, end, max) ⇒ <code>object</code>
-Adds the data for a specific iteration.
+## addChangeSum(changeSum, newResult) ⇒ <code>number</code>
+Updates the change sum. The new value will be returned
 
 **Kind**: global function  
-**Returns**: <code>object</code> - res  The ramp part of the current index and the changeSum  
+**Returns**: <code>number</code> - changeSum  The new updated changeSum  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| average | <code>object</code> | The computed average object |
-| changeSum | <code>number</code> | The current change summary value. This value must not exceed the end value |
-| parentRamp | <code>object</code> | The data ramp object of the parent |
-| parentIndex | <code>object</code> | The index to use for the parent ramp |
-| end | <code>number</code> | The maximal amount of data to create |
-| max | <code>number</code> | The maximal amount of data to be added in one iteration |
+| changeSum | <code>number</code> | The current changeSum |
+| newResult | <code>object</code> | The result to be merged |
 
 
 * <a name="getAveragePerIteration"></a>
@@ -209,36 +205,6 @@ this is the number of everage elememnts per iteration
 | count | <code>number</code> | How many data should be created at whole |
 
 
-* <a name="createStartVal"></a>
-
-## createStartVal(currentRes, start, parentRamp, parentIndex) ⇒ <code>object</code>
-Creates the start values for the first iteration
-
-**Kind**: global function  
-**Returns**: <code>object</code> - res  A timeRamp object part  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| currentRes | <code>object</code> | The already existing timeRamp data for this iteration |
-| start | <code>number</code> | The start count of objects |
-| parentRamp | <code>object</code> | The time ramp of the parent object |
-| parentIndex | <code>object</code> | An object with a 'start' and 'end' property. |
-
-
-* <a name="addChangeSum"></a>
-
-## addChangeSum(changeSum, newResult) ⇒ <code>number</code>
-Updates the change sum. The new value will be returned
-
-**Kind**: global function  
-**Returns**: <code>number</code> - changeSum  The new updated changeSum  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| changeSum | <code>number</code> | The current changeSum |
-| newResult | <code>object</code> | The result to be merged |
-
-
 * <a name="mergeResult"></a>
 
 ## mergeResult(iteration, result, newResult)
@@ -253,25 +219,9 @@ Merges the new result into the existing one
 | newResult | <code>object</code> | The result to be merged (only one iteration) |
 
 
-* <a name="getParentIndices"></a>
-
-## getParentIndices(objectType, parentRamp, lastParentSum) ⇒ <code>object</code>
-Creates the index ranges for the array to be filled. If the parentRamp is not defined
-it will return undefined
-
-**Kind**: global function  
-**Returns**: <code>object</code> - index  An object with a 'start' and 'end' property.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| objectType | <code>string</code> | The config type of this object (perParent|perIteration) |
-| parentRamp | <code>object</code> | The time ramp of the parent object |
-| lastParentSum | <code>number</code> | The last sum. used by perIteration. In this case the parentRamp might be undefined |
-
-
 * <a name="createMinVal"></a>
 
-## createMinVal(min, parentRamp, parentIndex) ⇒ <code>object</code>
+## createMinVal(min, parentCount, isChild) ⇒ <code>object</code>
 Creates the min values for one iteration
 
 **Kind**: global function  
@@ -280,8 +230,25 @@ Creates the min values for one iteration
 | Param | Type | Description |
 | --- | --- | --- |
 | min | <code>number</code> | The minimum count of objects |
-| parentRamp | <code>object</code> | The time ramp of the parent object |
-| parentIndex | <code>object</code> | An object with a 'start' and 'end' property. |
+| parentCount | <code>object</code> | The time ramp of the parent object |
+| isChild | <code>boolean</code> | If true, then this is a child object |
+
+
+* <a name="createStartVal"></a>
+
+## createStartVal(start, alreadyAdded, currentTmpDist, parentCount, isChild) ⇒ <code>object</code>
+Creates the start values for the first iteration.
+
+**Kind**: global function  
+**Returns**: <code>object</code> - res  A timeRamp object part  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| start | <code>number</code> | The start count of objects. |
+| alreadyAdded | <code>number</code> | The already existing count |
+| currentTmpDist | <code>object</code> | The already existing tmpDist array for this iteration |
+| parentCount | <code>number</code> | The number of the parent objects. |
+| isChild | <code>boolesn</code> | If true, then this is a child object |
 
 
 * * *
