@@ -3,9 +3,7 @@
 import logger from 'winston'
 import assert from 'assert'
 
-// // TODO: wenn perIteration. Dann die Daten nur erzeugen wenn sum > 0. Wenn zu diesem Zeitpunkt noch kein Parent da ist
-// // können auch noch keine children existieren!!!
-
+// // TODO: the child objects need a start value for the dist array. createSpreadData
 /**
  * Create the time ramp and dependencies between the objects.
  * Defines how many object should be created for each iteration
@@ -85,205 +83,16 @@ function workOnChildren(
       })
     })
   }
-
   return result
 }
 
-// /**
-//  * Creates the timeramp for one object
-//  * @param iterations {number} The count of iterations
-//  * @param objectConfig {object} The configuration of this object
-//  * @param parentRamp {object} The ramp up data object from the parent object
-//  * @param parentName {string} The name of the parent object
-//  * @return result {object} The amount of data to be created per iteration
-//  */
-// export function createRamp({
-//   iterations,
-//   objectConfig,
-//   parentTimeRamp,
-//   parentName,
-// }) {
-//   const res = {}
-//
-//   // this is a child object
-//   const isChild = parentTimeRamp !== undefined
-//
-//   const isPerIteration =
-//     objectConfig.type !== undefined && objectConfig.type === 'perIteration'
-//
-//   let changeSumAll = 0 // the summary count of all objects for all iterations
-//
-//   // const name = objectConfig.name
-//
-//   logger.debug(`Create time ramp for '${objectConfig.name}'`, {
-//     function: 'createRamp',
-//     object: objectConfig.name,
-//     parent: parentName,
-//   })
-//
-//   // ------------------
-//   // Set min and start values
-//   // ------------------
-//   let lastParentSum = 0 // the sum of the last parent value
-//   for (let i = 0; i < iterations; i++) {
-//     let parentForCurrentIteration = false
-//
-//     let parentTimeRampPart
-//     if (parentTimeRamp !== undefined) {
-//       parentTimeRampPart = parentTimeRamp[i]
-//       if (
-//         parentTimeRampPart !== undefined &&
-//         parentTimeRampPart.sum !== undefined
-//       ) {
-//         parentForCurrentIteration = true
-//         lastParentSum = parentTimeRampPart.sum
-//       }
-//     }
-//
-//     // const parentIndex = getParentIndices(
-//     //   objectConfig,
-//     //   parentTimeRampPart,
-//     //   lastParentSum
-//     // )
-//
-//     // let parentObjectCount = 0
-//     // if (isPerIteration || !isChild) {
-//     //   parentObjectCount = lastParentSum
-//     // }else{
-//     //   parentObjectCount = parentTimeRampPart.add
-//     // }
-//
-//     let resMin
-//     if (isPerIteration || !isChild) {
-//       resMin = createMinVal(objectConfig.min, lastParentSum, isChild)
-//     } else if (parentForCurrentIteration) {
-//       resMin = createMinVal(objectConfig.min, parentTimeRampPart.add, isChild)
-//     }
-//     changeSumAll = addChangeSum({changeSumAll, resMin})
-//     mergeResult(i, res, resMin)
-//
-//     // if (parentIndex !== undefined) {
-//
-//     // const resMin = createMinVal(
-//     //   objectConfig.min,
-//     //   parentTimeRampPart,
-//     //   parentIndex
-//     // )
-//     // changeSumAll = addChangeSum({changeSumAll, resMin})
-//     // mergeResult(i, res, resMin)
-//     // }
-//
-//     // create start value
-//     let resStart
-//     if (isPerIteration || !isChild) {
-//       resStart = createStartVal(objectConfig.start, res, lastParentSum, isChild)
-//     } else if (parentForCurrentIteration) {
-//       resStart = createStartVal(
-//         objectConfig.start,
-//         res,
-//         parentTimeRampPart.add,
-//         isChild
-//       )
-//     }
-//     changeSumAll = addChangeSum({changeSumAll, resStart})
-//     mergeResult(i, res, resStart)
-//
-//     // if (i === 0 && parentIndex !== undefined) {
-//     //   const resStart = createStartVal(
-//     //     res[i],
-//     //     objectConfig.start,
-//     //     parentTimeRampPart,
-//     //     parentIndex
-//     //   )
-//     //   changeSumAll = addChangeSum({changeSumAll, resStart})
-//     //   mergeResult(i, res, resStart)
-//     // }
-//   }
-//
-//   // ------------------
-//   // Set the other values if needed
-//   // ------------------
-//   if (
-//     objectConfig.end !== undefined &&
-//     objectConfig.end > 0 &&
-//     objectConfig.end > changeSumAll
-//   ) {
-//     const countMissing = objectConfig.end - changeSumAll
-//     const average = getAveragePerIteration(iterations, countMissing)
-//
-//     // check if we could set data only on existing iterations or also for new ones.
-//     // Root objects could always be set for all iterations. If a child, then the object
-//     // type is relevant
-//     let setForAllIterations = false
-//     if (parentTimeRamp === undefined || objectConfig.type === 'perIteration') {
-//       setForAllIterations = true
-//     }
-//
-//     let i = 0
-//     let lastChangeSum = changeSumAll
-//     lastParentSum = 0
-//     while (changeSumAll < objectConfig.end) {
-//       if (i === iterations) {
-//         // the end was reached, restart
-//         i = 0
-//         if (changeSumAll === lastChangeSum) {
-//           // in this iteration was now new data added. This is in error
-//           logger.error(`No new items added in iteration ${i}`)
-//           break
-//         } else {
-//           lastChangeSum = changeSumAll
-//         }
-//       }
-//
-//       // if the end value is reached, stop here
-//       if (changeSumAll === objectConfig.end) {
-//         break
-//       }
-//
-//       if (setForAllIterations || res[i] !== undefined) {
-//         let parentTimeRampPart
-//         if (parentTimeRamp !== undefined) {
-//           parentTimeRampPart = parentTimeRamp[i]
-//           if (
-//             parentTimeRampPart !== undefined &&
-//             parentTimeRampPart.sum !== undefined
-//           ) {
-//             lastParentSum = parentTimeRampPart.sum
-//           }
-//         }
-//         const parentIndex = getParentIndices(
-//           objectConfig,
-//           parentTimeRampPart,
-//           lastParentSum
-//         )
-//
-//         // if (parentIndex !== undefined) {
-//         // create the data
-//         const resData = createSpreadData({
-//           average,
-//           changeSum: changeSumAll,
-//           parentRamp: parentTimeRampPart,
-//           parentIndex,
-//           end: objectConfig.end,
-//           max: objectConfig.max,
-//           currentTimeRamp: res[i],
-//         })
-//
-//         changeSumAll = addChangeSum({changeSumAll, resData})
-//         mergeResult(i, res, resData)
-//         // }
-//       }
-//       i++
-//     }
-//   }
-//
-//   logger.debug(`Result`, { function: 'createRamp', result: res })
-//
-//   createSum(res)
-//
-//   return res
-// }
-
+/**
+ * Creates the timeramp min vale and start val for one object
+ * @param iterations {number} The count of iterations
+ * @param parentTimeRamp {object} The ramp up data object from the parent object
+ * @param objectConfig {object} The configuration of this object
+ * @return result {object} The amount of data to be created per iteration
+ */
 export function createRampMinStartVal({
   iterations,
   parentTimeRamp,
@@ -296,7 +105,7 @@ export function createRampMinStartVal({
   // should be created for each iteration or only for the existing parents
   const isPerIteration =
     objectConfig.type !== undefined && objectConfig.type === 'perIteration'
-  debugger
+
   const res = {}
   let changeSumAll = 0
   let lastParentSum = 0 // the sum of the last parent value
@@ -357,15 +166,204 @@ export function createRampMinStartVal({
       }
     }
   }
-
   return { res, changeSumAll }
+}
+
+/**
+ * Creates the timeramp rest values not created by min and start value. The given time ramp
+ * will be updated by this function
+ * @param iterations {number} The count of iterations
+ * @param parentTimeRamp {object} The ramp up data object from the parent object
+ * @param objectConfig {object} The configuration of this object
+ * @param currentTimeRamp {object} The currently created values
+ * @param changeSumAll {number} The coiunt of the currently created values
+ */
+export function createRampRestValue({
+  iterations,
+  parentTimeRamp,
+  objectConfig,
+  currentTimeRamp,
+  changeSumAll,
+}) {
+  let changeSumAllNew = changeSumAll
+
+  if (
+    objectConfig.end === undefined ||
+    objectConfig.end === 0 ||
+    objectConfig.end <= changeSumAllNew
+  ) {
+    // nothing to do
+    return changeSumAllNew
+  }
+
+  // ------------------
+  // Set the other values if needed
+  // ------------------
+  const countMissing = objectConfig.end - changeSumAllNew
+  const average = getAveragePerIteration({ iterations, count: countMissing })
+  // this is a child object
+  const isChild = parentTimeRamp !== undefined
+
+  // Only relevant if this is a child object. Defines if the children
+  // should be created for each iteration or only for the existing parents
+  const isPerIteration =
+    objectConfig.type !== undefined && objectConfig.type === 'perIteration'
+
+  let i = 0
+  let lastChangeSum = changeSumAllNew
+  let lastParentSum = 0
+  while (changeSumAllNew < objectConfig.end) {
+    if (i === iterations) {
+      // the end was reached, restart
+      i = 0
+      if (changeSumAllNew === lastChangeSum) {
+        // in this iteration was now new data added. This is in error
+        logger.error(`No new items added in iteration ${i}`)
+        break
+      } else {
+        lastChangeSum = changeSumAllNew
+      }
+    }
+
+    // if the end value is reached, stop here
+    if (changeSumAllNew === objectConfig.end) {
+      break
+    }
+
+    let parentIndex
+    let parentTimeRampPart
+    if (isChild) {
+      parentTimeRampPart = parentTimeRamp[i]
+      if (
+        parentTimeRampPart !== undefined &&
+        parentTimeRampPart.sum !== undefined
+      ) {
+        // if per iteration we data from the first iteration to this one
+        lastParentSum = parentTimeRampPart.sum
+      } else if (isPerIteration) {
+        parentIndex = lastParentSum
+      } else if (!isPerIteration && parentTimeRampPart !== undefined) {
+        parentIndex = parentTimeRampPart.add
+      }
+    }
+
+    if ((isChild && parentIndex > 0) || !isChild) {
+      console.log({ currentTimeRamp, average })
+      const resData = createSpreadData({
+        average,
+        changeSum: changeSumAllNew,
+        parentRamp: parentTimeRampPart,
+        parentIndex,
+        end: objectConfig.end,
+        max: objectConfig.max,
+        currentTimeRampPart: currentTimeRamp[i],
+      })
+      changeSumAllNew = addChangeSum({ changeSumAllNew, resData })
+      mergeResult(i, currentTimeRamp, resData)
+    }
+
+    i++
+  }
+
+  return changeSumAllNew
+}
+/**
+ * creates the data for a specific iteration.
+ * @param average {object} The computed average object
+ * @param changeSum {number} The current change summary value. This value must not exceed the end value
+ * @param parentRamp {object} The data ramp object of the parent
+ * @param parentIndex {object} The index to use for the parent ramp
+ * @param end {number} The maximal amount of data to create
+ * @param max {number} The maximal amount of data to be added in one iteration
+ * @return res {object} The ramp part of the current index and the changeSum
+ */
+export function createSpreadData({
+  average,
+  changeSum,
+  parentRamp,
+  parentIndex,
+  end,
+  max,
+  currentTimeRampPart = { tmpDist: [] },
+}) {
+  assert.ok(average)
+  // assert.ok(changeSum)
+  assert.ok(end)
+
+  // the maximumm count to add
+  const maxChange = max ? max : end
+
+  // get current change count
+  let changeCount =
+    Math.floor(Math.random() * (average.max - average.min)) + average.min
+  if (changeSum + changeCount > end) {
+    changeCount = end - changeSum
+  }
+  if (changeCount > maxChange) {
+    changeCount = maxChange
+  }
+
+  // set the change count to the result object
+  if (changeCount > 0) {
+    // initialize the object for this iteration
+    const res = {
+      add: changeCount,
+    }
+
+    if (parentRamp !== undefined) {
+      // this is a child object. We need to spread the data under the parent objects
+
+      res.tmpDist = []
+
+      let countToSpread = changeCount
+      const spreadAverage = getAveragePerIteration({
+        iterations: parentIndex,
+        count: countToSpread,
+      })
+
+      while (countToSpread > 0) {
+        // Get the count to be set in this iteration
+        let count =
+          Math.floor(Math.random() * (spreadAverage.max - spreadAverage.min)) +
+          spreadAverage.min
+
+        if (count > max) {
+          count = max
+        }
+        if (count > countToSpread) {
+          count = countToSpread
+        }
+
+        if (count > 0) {
+          // get the index for which parent the data will be set
+          const parentIdx = Math.floor(Math.random() * parentIndex)
+          if (res.tmpDist[parentIdx] === undefined) {
+            res.tmpDist[parentIdx] = 0
+          }
+
+          if (
+            currentTimeRampPart[parentIdx] !== undefined &&
+            currentTimeRampPart[parentIdx] > 0 &&
+            currentTimeRampPart[parentIdx] + count > max
+          ) {
+            // decrease the count as necessary
+            count = max - currentTimeRampPart[parentIdx]
+          }
+          res.tmpDist[parentIdx] += count
+          countToSpread -= count
+        }
+      }
+    }
+
+    return res
+  }
 }
 
 /**
  * Creates the timeramp for one object
  * @param iterations {number} The count of iterations
  * @param objectConfig {object} The configuration of this object
- * @param parentRamp {object} The ramp up data object from the parent object
+ * @param parentTimeRamp {object} The ramp up data object from the parent object
  * @param parentName {string} The name of the parent object
  * @return result {object} The amount of data to be created per iteration
  */
@@ -518,101 +516,6 @@ export function createSum(ramp) {
     }
   }
 }
-
-// /**
-//  * Adds the data for a specific iteration.
-//  * @param average {object} The computed average object
-//  * @param changeSum {number} The current change summary value. This value must not exceed the end value
-//  * @param parentRamp {object} The data ramp object of the parent
-//  * @param parentIndex {object} The index to use for the parent ramp
-//  * @param end {number} The maximal amount of data to create
-//  * @param max {number} The maximal amount of data to be added in one iteration
-//  * @return res {object} The ramp part of the current index and the changeSum
-//  */
-// export function createSpreadData({
-//   average,
-//   changeSum,
-//   parentRamp,
-//   parentIndex,
-//   end,
-//   max,
-//   currentTimeRamp = { tmpDist: [] },
-// }) {
-//   assert.ok(average)
-//   // assert.ok(changeSum)
-//   assert.ok(end)
-//
-//   // the maximumm count to add
-//   const maxChange = max ? max : end
-//
-//   // get current change count
-//   let changeCount =
-//     Math.floor(Math.random() * (average.max - average.min)) + average.min
-//   if (changeSum + changeCount > end) {
-//     changeCount = end - changeSum
-//   }
-//   if (changeCount > maxChange) {
-//     changeCount = maxChange
-//   }
-//
-//   // set the change count to the result object
-//   if (changeCount > 0) {
-//     // initialize the object for this iteration
-//     const res = {
-//       add: changeCount,
-//     }
-//
-//     if (parentRamp !== undefined) {
-//       // this is a child object. We need to spread the data under the parent objects
-//
-//       res.tmpDist = []
-//
-//       let countToSpread = changeCount
-//       const spreadAverage = getAveragePerIteration(
-//         parentIndex.end - parentIndex.start,
-//         countToSpread
-//       )
-//
-//       while (countToSpread > 0) {
-//         // Get the count to be set in this iteration
-//         let count =
-//           Math.floor(Math.random() * (spreadAverage.max - spreadAverage.min)) +
-//           spreadAverage.min
-//
-//         if (count > max) {
-//           count = max
-//         }
-//         if (count > countToSpread) {
-//           count = countToSpread
-//         }
-//
-//         if (count > 0) {
-//           // get the index for which parent the data will be set
-//           const parentIdx =
-//             Math.floor(Math.random() * (parentIndex.end - parentIndex.start)) +
-//             parentIndex.start
-//           if (res.tmpDist[parentIdx] === undefined) {
-//             res.tmpDist[parentIdx] = 0
-//           }
-//
-//           if (
-//             currentTimeRamp[parentIdx] !== undefined &&
-//             currentTimeRamp[parentIdx] > 0 &&
-//             currentTimeRamp[parentIdx] + count > max
-//           ) {
-//             // decrease the count as necessary
-//             count = max - currentTimeRamp[parentIdx]
-//           }
-//           res.tmpDist[parentIdx] += count
-//           countToSpread -= count
-//         }
-//       }
-//     }
-//
-//     return res
-//   }
-// }
-//
 
 /**
  * Updates the change sum. The new value will be returned

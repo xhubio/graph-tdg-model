@@ -3,6 +3,7 @@
 import {
   createSum,
   // createTimeRamp,
+  createSpreadData,
   getAveragePerIteration,
   createRampMinStartVal,
   mergeResult,
@@ -19,6 +20,202 @@ import {
 //     console.log(printMe(res))
 //   })
 // })
+
+describe('createSpreadData', () => {
+  describe('is root', () => {
+    it('with changeSum > end', () => {
+      const average = { average: 50, max: 100, min: 1 }
+      const changeSum = 41
+      const end = 40
+      const max = 100
+      const currentTimeRamp = { add: 1, sum: 1 }
+      const res = createSpreadData({
+        average,
+        changeSum,
+        end,
+        max,
+        currentTimeRamp,
+      })
+      // should always return undefined as the changeSum is already greater than max
+      expect(res).toBeUndefined()
+    })
+    it('with changeSum <= end', () => {
+      const average = { average: 50, max: 100, min: 40 }
+      const changeSum = 34
+      const end = 40
+      const max = 100
+      const currentTimeRamp = { add: 1, sum: 1 }
+      const res = createSpreadData({
+        average,
+        changeSum,
+        end,
+        max,
+        currentTimeRamp,
+      })
+      // should always return the value to get from 34 to 40(the end value)
+      expect(res).toEqual({ add: 6 })
+    })
+    it('with changeCount > max', () => {
+      const average = { average: 90, max: 100, min: 11 }
+      const changeSum = 34
+      const end = 100
+      const max = 10
+      const currentTimeRamp = { add: 1, sum: 1 }
+      const res = createSpreadData({
+        average,
+        changeSum,
+        end,
+        max,
+        currentTimeRamp,
+      })
+      // should always return the max value
+      expect(res).toEqual({ add: 10 })
+    })
+    it('with changeCount <= max', () => {
+      const average = { average: 3, max: 9, min: 1 }
+      const changeSum = 34
+      const end = 100
+      const max = 10
+      const currentTimeRamp = { add: 1, sum: 1 }
+      const res = createSpreadData({
+        average,
+        changeSum,
+        end,
+        max,
+        currentTimeRamp,
+      })
+      // should retun a value less then max
+      expect(`${res.add}`).toMatch(new RegExp('^\\d$'))
+    })
+  })
+
+  describe('is child', () => {
+    it('with changeSum > end', () => {
+      const average = { average: 50, max: 100, min: 1 }
+      const changeSum = 41
+      const end = 40
+      const max = 100
+      const currentTimeRamp = { add: 1, sum: 1 }
+      const parentRamp = { add: 1, sum: 4 }
+      const parentIndex = 2
+      const res = createSpreadData({
+        average,
+        changeSum,
+        parentRamp,
+        parentIndex,
+        end,
+        max,
+        currentTimeRamp,
+      })
+      // should always return undefined as the changeSum is already greater than max
+      expect(res).toBeUndefined()
+    })
+    it('with changeSum <= end', () => {
+      const average = { average: 50, max: 100, min: 1 }
+      const changeSum = 34
+      const end = 40
+      const max = 100
+      const currentTimeRamp = { add: 1, sum: 1 }
+      const parentRamp = { add: 1, sum: 4 }
+      const parentIndex = 2
+      const res = createSpreadData({
+        average,
+        changeSum,
+        parentRamp,
+        parentIndex,
+        end,
+        max,
+        currentTimeRamp,
+      })
+      // should always return the value to get from 34 to 40(the end value)
+      // expect(res).toEqual({ add: 6, tmpDist: [undefined, undefined, 4, 2] })
+      const expectedVal = res.add
+      let actualVal = 0
+      if (res.tmpDist[0] !== undefined) {
+        actualVal += res.tmpDist[0]
+      }
+      if (res.tmpDist[1] !== undefined) {
+        actualVal += res.tmpDist[1]
+      }
+      console.log(JSON.stringify(res))
+      expect(expectedVal).toEqual(actualVal, `res = ${JSON.stringify(res)}`)
+    })
+    it('with changeCount > max', () => {
+      const average = { average: 50, max: 100, min: 1 }
+      const changeSum = 34
+      const end = 100
+      const max = 10
+      const currentTimeRamp = { add: 1, sum: 1 }
+      const parentRamp = { add: 1, sum: 4 }
+      const parentIndex = 2
+      const res = createSpreadData({
+        average,
+        changeSum,
+        parentRamp,
+        parentIndex,
+        end,
+        max,
+        currentTimeRamp,
+      })
+      // should always return the max value
+      // expect(res).toEqual({ add: 10, tmpDist: [undefined, undefined, 8, 4] })
+
+      let allTmpVal = 0
+      res.tmpDist.forEach(val => {
+        allTmpVal += val
+      })
+      expect(res.add).toEqual(allTmpVal)
+    })
+    it('with changeCount <= max', () => {
+      const average = { average: 3, max: 9, min: 1 }
+      const changeSum = 34
+      const end = 100
+      const max = 10
+      const currentTimeRamp = { add: 1, sum: 1 }
+      const parentRamp = { add: 1, sum: 4 }
+      const parentIndex = 2
+      const res = createSpreadData({
+        average,
+        changeSum,
+        parentRamp,
+        parentIndex,
+        end,
+        max,
+        currentTimeRamp,
+      })
+      // should retun a value less then max
+      expect(`${res.add}`).toMatch(new RegExp('^\\d$'))
+      expect(`${res.tmpDist}`).toBeDefined()
+    })
+    it('bigger data', () => {
+      const average = { average: 15, max: 100, min: 1 }
+      const changeSum = 34
+      const end = 1000
+      const max = 100
+      const currentTimeRamp = { add: 1, sum: 1 }
+      const parentRamp = { add: 35, sum: 36 }
+      const parentIndex = 34
+      const res = createSpreadData({
+        average,
+        changeSum,
+        parentRamp,
+        parentIndex,
+        end,
+        max,
+        currentTimeRamp,
+      })
+      // should retun a value less then max
+      expect(`${res.add}`).toMatch(new RegExp('^\\d+$'))
+      expect(`${res.tmpDist}`).toBeDefined()
+      let allTmpVal = 0
+      res.tmpDist.forEach(val => {
+        allTmpVal += val
+      })
+      expect(res.add).toEqual(allTmpVal)
+      expect(res.tmpDist.length).toBeGreaterThan(25) // the number may change
+    })
+  })
+})
 
 describe('createRampMinStartVal', () => {
   describe('min', () => {
@@ -192,11 +389,34 @@ describe('createRampMinStartVal', () => {
     })
   })
   describe('both', () => {
-
-hier gehts weiter.
-min value + starVal
-
-
+    it('min and start', () => {
+      const res = createRampMinStartVal({
+        iterations: 5,
+        parentTimeRamp: {
+          '0': { add: 3, sum: 3 },
+          '1': { add: 1, sum: 4 },
+          '2': { add: 1, sum: 5 },
+          '3': { add: 2, sum: 5 },
+        },
+        objectConfig: {
+          start: 3,
+          end: 700,
+          type: 'perIteration',
+          min: 2,
+          max: 100,
+        },
+      })
+      expect(res).toEqual({
+        changeSumAll: 47,
+        res: {
+          '0': { add: 9, tmpDist: [3, 3, 3] },
+          '1': { add: 8, tmpDist: [2, 2, 2, 2] },
+          '2': { add: 10, tmpDist: [2, 2, 2, 2, 2] },
+          '3': { add: 10, tmpDist: [2, 2, 2, 2, 2] },
+          '4': { add: 10, tmpDist: [2, 2, 2, 2, 2] },
+        },
+      })
+    })
   })
 })
 

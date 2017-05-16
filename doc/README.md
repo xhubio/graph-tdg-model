@@ -147,9 +147,59 @@ recursivly.
 | parentName | <code>string</code> | The name of the parent object |
 
 
+* <a name="createRampMinStartVal"></a>
+
+## createRampMinStartVal(iterations, parentTimeRamp, objectConfig) ⇒ <code>object</code>
+Creates the timeramp min vale and start val for one object
+
+**Kind**: global function  
+**Returns**: <code>object</code> - result  The amount of data to be created per iteration  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| iterations | <code>number</code> | The count of iterations |
+| parentTimeRamp | <code>object</code> | The ramp up data object from the parent object |
+| objectConfig | <code>object</code> | The configuration of this object |
+
+
+* <a name="createRampRestValue"></a>
+
+## createRampRestValue(iterations, parentTimeRamp, objectConfig, currentTimeRamp, changeSumAll)
+Creates the timeramp rest values not created by min and start value. The given time ramp
+will be updated by this function
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| iterations | <code>number</code> | The count of iterations |
+| parentTimeRamp | <code>object</code> | The ramp up data object from the parent object |
+| objectConfig | <code>object</code> | The configuration of this object |
+| currentTimeRamp | <code>object</code> | The currently created values |
+| changeSumAll | <code>number</code> | The coiunt of the currently created values |
+
+
+* <a name="createSpreadData"></a>
+
+## createSpreadData(average, changeSum, parentRamp, parentIndex, end, max) ⇒ <code>object</code>
+creates the data for a specific iteration.
+
+**Kind**: global function  
+**Returns**: <code>object</code> - res  The ramp part of the current index and the changeSum  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| average | <code>object</code> | The computed average object |
+| changeSum | <code>number</code> | The current change summary value. This value must not exceed the end value |
+| parentRamp | <code>object</code> | The data ramp object of the parent |
+| parentIndex | <code>object</code> | The index to use for the parent ramp |
+| end | <code>number</code> | The maximal amount of data to create |
+| max | <code>number</code> | The maximal amount of data to be added in one iteration |
+
+
 * <a name="createRamp"></a>
 
-## createRamp(iterations, objectConfig, parentRamp, parentName) ⇒ <code>object</code>
+## createRamp(iterations, objectConfig, parentTimeRamp, parentName) ⇒ <code>object</code>
 Creates the timeramp for one object
 
 **Kind**: global function  
@@ -159,7 +209,7 @@ Creates the timeramp for one object
 | --- | --- | --- |
 | iterations | <code>number</code> | The count of iterations |
 | objectConfig | <code>object</code> | The configuration of this object |
-| parentRamp | <code>object</code> | The ramp up data object from the parent object |
+| parentTimeRamp | <code>object</code> | The ramp up data object from the parent object |
 | parentName | <code>string</code> | The name of the parent object |
 
 
