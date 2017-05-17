@@ -2,7 +2,8 @@
 
 import {
   createSum,
-  // createTimeRamp,
+  createRampRestValue,
+  createTimeRamp,
   createSpreadData,
   getAveragePerIteration,
   createRampMinStartVal,
@@ -11,15 +12,46 @@ import {
   createStartVal,
 } from '../lib/TimeRamp2'
 
-// describe('createTimeRamp', () => {
-//   test.only('with changeSum > end', () => {
-//     const res = createTimeRamp({
-//       timeShift: TIME_SHIFT,
-//       generationOrder: GENERATION_ORDER,
-//     })
-//     console.log(printMe(res))
-//   })
-// })
+describe('createTimeRamp', () => {
+  test.only('with changeSum > end', () => {
+    const res = createTimeRamp({
+      timeShift: TIME_SHIFT,
+      generationOrder: GENERATION_ORDER,
+    })
+    console.log(printMe(res))
+  })
+})
+
+describe('createRampRestValue', () => {
+  describe('is root', () => {
+    it('xxxx', () => {
+      const currentTimeRamp = {}
+      const changeSum = createRampRestValue({
+        iterations: 5,
+        parentTimeRamp: undefined,
+        objectConfig: {
+          start: 0,
+          end: 70,
+          type: 'perIteration',
+          min: 2,
+          max: 20,
+        },
+        currentTimeRamp,
+        changeSumAll: 3,
+      })
+
+      expect(currentTimeRamp).toEqual({
+        '0': { add: 2 },
+        '1': { add: 2 },
+        '2': { add: 2 },
+        '3': { add: 2 },
+        '4': { add: 2 },
+      })
+      expect(changeSum).toEqual(5)
+    })
+  })
+  describe('is child', () => {})
+})
 
 describe('createSpreadData', () => {
   describe('is root', () => {
@@ -137,8 +169,7 @@ describe('createSpreadData', () => {
       if (res.tmpDist[1] !== undefined) {
         actualVal += res.tmpDist[1]
       }
-      console.log(JSON.stringify(res))
-      expect(expectedVal).toEqual(actualVal, `res = ${JSON.stringify(res)}`)
+      expect(expectedVal).toEqual(actualVal)
     })
     it('with changeCount > max', () => {
       const average = { average: 50, max: 100, min: 1 }

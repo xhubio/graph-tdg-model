@@ -164,11 +164,12 @@ Creates the timeramp min vale and start val for one object
 
 * <a name="createRampRestValue"></a>
 
-## createRampRestValue(iterations, parentTimeRamp, objectConfig, currentTimeRamp, changeSumAll)
+## createRampRestValue(iterations, parentTimeRamp, objectConfig, currentTimeRamp, changeSumAll) ⇒ <code>number</code>
 Creates the timeramp rest values not created by min and start value. The given time ramp
 will be updated by this function
 
 **Kind**: global function  
+**Returns**: <code>number</code> - changeSumAll  The new change sum  
 
 | Param | Type | Description |
 | --- | --- | --- |

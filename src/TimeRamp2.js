@@ -4,6 +4,11 @@ import logger from 'winston'
 import assert from 'assert'
 
 // // TODO: the child objects need a start value for the dist array. createSpreadData
+
+weiter hier
+Bei den children noch den start wert setzen
+
+
 /**
  * Create the time ramp and dependencies between the objects.
  * Defines how many object should be created for each iteration
@@ -177,6 +182,7 @@ export function createRampMinStartVal({
  * @param objectConfig {object} The configuration of this object
  * @param currentTimeRamp {object} The currently created values
  * @param changeSumAll {number} The coiunt of the currently created values
+ * @return changeSumAll {number} The new change sum
  */
 export function createRampRestValue({
   iterations,
@@ -186,7 +192,7 @@ export function createRampRestValue({
   changeSumAll,
 }) {
   let changeSumAllNew = changeSumAll
-
+  debugger
   if (
     objectConfig.end === undefined ||
     objectConfig.end === 0 ||
@@ -258,10 +264,16 @@ export function createRampRestValue({
         max: objectConfig.max,
         currentTimeRampPart: currentTimeRamp[i],
       })
-      changeSumAllNew = addChangeSum({ changeSumAllNew, resData })
-      mergeResult(i, currentTimeRamp, resData)
+      changeSumAllNew = addChangeSum({
+        changeSum: changeSumAllNew,
+        newResult: resData,
+      })
+      mergeResult({
+        iteration: i,
+        result: currentTimeRamp,
+        newResult: resData,
+      })
     }
-
     i++
   }
 
@@ -381,13 +393,25 @@ export function createRamp({
 
   // the summary count of all objects for all iterations
   // let changeSumAll = 0
-  const res = createRampMinStartVal({
+  const { res, changeSumAll } = createRampMinStartVal({
     iterations,
     parentTimeRamp,
     objectConfig,
   })
 
-  console.log(res)
+  createRampRestValue({
+    iterations,
+    parentTimeRamp,
+    objectConfig,
+    currentTimeRamp: res,
+    changeSumAll,
+  })
+
+  logger.debug(`Result`, { function: 'createRamp', result: res })
+
+  createSum(res)
+
+  return res
 
   // // ------------------
   // // Set the other values if needed
@@ -465,12 +489,6 @@ export function createRamp({
   //     i++
   //   }
   // }
-
-  logger.debug(`Result`, { function: 'createRamp', result: res })
-
-  createSum(res)
-
-  return res
 }
 
 /**
