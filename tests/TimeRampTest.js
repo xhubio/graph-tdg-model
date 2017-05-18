@@ -792,7 +792,7 @@ const TIME_SHIFT = {
     },
     user: {
       start: 1,
-      end: 20,
+      end: 25,
       type: 'perParent',
       min: 1,
     },
@@ -812,8 +812,8 @@ const TIME_SHIFT = {
       max: 10,
     },
     beneficary: {
-      start: 10,
-      end: 20,
+      start: 2,
+      end: 40,
       type: 'perParent',
       min: 1,
     },

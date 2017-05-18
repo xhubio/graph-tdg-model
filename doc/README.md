@@ -147,6 +147,22 @@ recursivly.
 | parentName | <code>string</code> | The name of the parent object |
 
 
+* <a name="createRamp"></a>
+
+## createRamp(iterations, objectConfig, parentTimeRamp, parentName) ⇒ <code>object</code>
+Creates the timeramp for one object
+
+**Kind**: global function  
+**Returns**: <code>object</code> - result  The amount of data to be created per iteration  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| iterations | <code>number</code> | The count of iterations |
+| objectConfig | <code>object</code> | The configuration of this object |
+| parentTimeRamp | <code>object</code> | The ramp up data object from the parent object |
+| parentName | <code>string</code> | The name of the parent object |
+
+
 * <a name="createRampMinStartVal"></a>
 
 ## createRampMinStartVal(iterations, parentTimeRamp, objectConfig) ⇒ <code>object</code>
@@ -160,6 +176,22 @@ Creates the timeramp min vale and start val for one object
 | iterations | <code>number</code> | The count of iterations |
 | parentTimeRamp | <code>object</code> | The ramp up data object from the parent object |
 | objectConfig | <code>object</code> | The configuration of this object |
+
+
+* <a name="calculateEndValue"></a>
+
+## calculateEndValue(iterations, isPerIteration, parentTimeRamp, average) ⇒ <code>number</code>
+Claculates the end value for a child object if none is given
+
+**Kind**: global function  
+**Returns**: <code>number</code> - endValue  The calculated endValue  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| iterations | <code>number</code> | The count of iterations |
+| isPerIteration | <code>boolean</code> | Defines if the child values should be created perIteration or perParent |
+| parentTimeRamp | <code>object</code> | The ramp up data object from the parent object |
+| average | <code>number</code> | The number to multiply with the parents or the iterations |
 
 
 * <a name="createRampRestValue"></a>
@@ -198,32 +230,18 @@ creates the data for a specific iteration.
 | max | <code>number</code> | The maximal amount of data to be added in one iteration |
 
 
-* <a name="createRamp"></a>
-
-## createRamp(iterations, objectConfig, parentTimeRamp, parentName) ⇒ <code>object</code>
-Creates the timeramp for one object
-
-**Kind**: global function  
-**Returns**: <code>object</code> - result  The amount of data to be created per iteration  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| iterations | <code>number</code> | The count of iterations |
-| objectConfig | <code>object</code> | The configuration of this object |
-| parentTimeRamp | <code>object</code> | The ramp up data object from the parent object |
-| parentName | <code>string</code> | The name of the parent object |
-
-
 * <a name="createSum"></a>
 
-## createSum(ramp)
+## createSum(ramp, isPerIteration) ⇒ <code>number</code>
 Takes a ramp up data object and enters the sum field and also adjust the tmpDist to dist Array
 
 **Kind**: global function  
+**Returns**: <code>number</code> - sum  The sum of the created objects  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | ramp | <code>object</code> | The data ramp to add the sum field |
+| isPerIteration | <code>boolean</code> | (only for child) If true, the startDist will always be '0' |
 
 
 * <a name="addChangeSum"></a>

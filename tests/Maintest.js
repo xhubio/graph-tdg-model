@@ -7,19 +7,19 @@ const TIME_SHIFT = {
   changes: {
     company: {
       start: 100,
-      end: 200000,
+      end: 50000,
       type: 'perIteration',
       min: 1,
       max: 1000,
     },
     user: {
       start: 2,
-      end: 400000,
+      end: 40000,
       type: 'perParent',
       min: 1,
     },
     account: {
-      end: 200000 * 5,
+      end: 50000 * 5,
       min: 1,
       type: 'perParent',
     },
@@ -32,10 +32,11 @@ const TIME_SHIFT = {
       type: 'perParent',
       min: 0,
       max: 10000,
+      end: 1000000000
     },
     beneficary: {
       start: 500,
-      end: 200000,
+      end: 20000,
       type: 'perParent',
       min: 1,
     },
@@ -51,24 +52,46 @@ const GENERATION_ORDER = {
       user: {},
       beneficary: {},
       account: {
-        // children: {
-        //   statement: {
-        //     children: {
-        //       transaction: {
-        //         links: {
-        //           beneficary: {},
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
+        children: {
+          statement: {
+            children: {
+              transaction: {
+                links: {
+                  beneficary: {},
+                },
+              },
+            },
+          },
+        },
       },
     },
   },
   bank: {},
 }
 
-createTimeRamp({
+const res = createTimeRamp({
   timeShift: TIME_SHIFT,
   generationOrder: GENERATION_ORDER,
 })
+
+console.log(printMe(res))
+
+/**
+ * Prints the result in readable format
+ */
+// eslint-disable-next-line no-unused-vars
+function printMe(dat) {
+  const lines = []
+  lines.push(`{`)
+  Object.keys(dat).forEach(objName => {
+    lines.push(`	"${objName}":{`)
+    Object.keys(dat[objName]).forEach(iter => {
+      const val = dat[objName][iter]
+      lines.push(`	  "${iter}":${JSON.stringify(val)},`)
+    })
+    lines.push(`	},`)
+  })
+  lines.push(`}`)
+
+  return lines.join('\n')
+}
