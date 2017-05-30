@@ -11,7 +11,7 @@ import {
   mergeResult,
   createMinVal,
   createStartVal,
-} from '../lib/TimeRamp2'
+} from '../lib/TimeRamp'
 
 describe('createTimeRamp', () => {
   test.only('with changeSum > end', () => {
