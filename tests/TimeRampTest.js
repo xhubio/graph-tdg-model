@@ -1,5 +1,8 @@
 'use strict'
 
+import { printMe } from '../lib/debug'
+import { loadJson } from './util'
+
 import {
   createSum,
   // createRampRestValue,
@@ -13,6 +16,9 @@ import {
   createStartVal,
 } from '../lib/TimeRamp'
 
+const GENERATION_ORDER = loadJson('generation_order_min.json')
+const TIME_SHIFT = loadJson('timeshift_min.json')
+
 describe('createTimeRamp', () => {
   test.only('with changeSum > end', () => {
     const res = createTimeRamp({
@@ -22,6 +28,7 @@ describe('createTimeRamp', () => {
     console.log(printMe(res))
   })
 })
+
 //
 // describe('createRampRestValue', () => {
 //   describe('is root', () => {
@@ -295,11 +302,13 @@ describe('createRampMinStartVal', () => {
         expect(res).toEqual({
           changeSumAll: 10,
           res: {
-            '0': { add: 2 },
-            '1': { add: 2 },
-            '2': { add: 2 },
-            '3': { add: 2 },
-            '4': { add: 2 },
+            data: {
+              '0': { add: 2 },
+              '1': { add: 2 },
+              '2': { add: 2 },
+              '3': { add: 2 },
+              '4': { add: 2 },
+            },
           },
         })
       })
@@ -309,9 +318,11 @@ describe('createRampMinStartVal', () => {
         const res = createRampMinStartVal({
           iterations: 5,
           parentTimeRamp: {
-            '1': { add: 3, sum: 3 },
-            '2': { add: 1, sum: 4 },
-            '4': { add: 1, sum: 5 },
+            data: {
+              '1': { add: 3, sum: 3 },
+              '2': { add: 1, sum: 4 },
+              '4': { add: 1, sum: 5 },
+            },
           },
           objectConfig: {
             start: 0,
@@ -324,11 +335,13 @@ describe('createRampMinStartVal', () => {
         expect(res).toEqual({
           changeSumAll: 32,
           res: {
-            // "0" undefined because the parent does not exists AND no values till know
-            '1': { add: 6 },
-            '2': { add: 8 },
-            '3': { add: 8 }, // "3" exists because there are values from before. So same result as for "2"
-            '4': { add: 10 },
+            data: {
+              // "0" undefined because the parent does not exists AND no values till know
+              '1': { add: 6 },
+              '2': { add: 8 },
+              '3': { add: 8 }, // "3" exists because there are values from before. So same result as for "2"
+              '4': { add: 10 },
+            },
           },
         })
       })
@@ -336,9 +349,11 @@ describe('createRampMinStartVal', () => {
         const res = createRampMinStartVal({
           iterations: 5,
           parentTimeRamp: {
-            '1': { add: 3, sum: 3 },
-            '2': { add: 1, sum: 4 },
-            '4': { add: 1, sum: 5 },
+            data: {
+              '1': { add: 3, sum: 3 },
+              '2': { add: 1, sum: 4 },
+              '4': { add: 1, sum: 5 },
+            },
           },
           objectConfig: {
             start: 0,
@@ -351,11 +366,13 @@ describe('createRampMinStartVal', () => {
         expect(res).toEqual({
           changeSumAll: 10,
           res: {
-            // "0" undefined because the parent does not exists
-            '1': { add: 6 },
-            '2': { add: 2 },
-            // "3" does not exists because there is no parent
-            '4': { add: 2 },
+            data: {
+              // "0" undefined because the parent does not exists
+              '1': { add: 6 },
+              '2': { add: 2 },
+              // "3" does not exists because there is no parent
+              '4': { add: 2 },
+            },
           },
         })
       })
@@ -375,16 +392,21 @@ describe('createRampMinStartVal', () => {
             max: 100,
           },
         })
-        expect(res).toEqual({ changeSumAll: 3, res: { '0': { add: 3 } } })
+        expect(res).toEqual({
+          changeSumAll: 3,
+          res: { data: { '0': { add: 3 } } },
+        })
       })
       describe('child object', () => {
         it('set start per iteration', () => {
           const res = createRampMinStartVal({
             iterations: 5,
             parentTimeRamp: {
-              '1': { add: 3, sum: 3 },
-              '2': { add: 1, sum: 4 },
-              '4': { add: 1, sum: 5 },
+              data: {
+                '1': { add: 3, sum: 3 },
+                '2': { add: 1, sum: 4 },
+                '4': { add: 1, sum: 5 },
+              },
             },
             objectConfig: {
               start: 3,
@@ -397,16 +419,18 @@ describe('createRampMinStartVal', () => {
           expect(res).toEqual({
             // even a start value need any parent number
             changeSumAll: 0,
-            res: {},
+            res: { data: {} },
           })
         })
         it('set start per iteration', () => {
           const res = createRampMinStartVal({
             iterations: 5,
             parentTimeRamp: {
-              '0': { add: 3, sum: 3 },
-              '1': { add: 1, sum: 4 },
-              '2': { add: 1, sum: 5 },
+              data: {
+                '0': { add: 3, sum: 3 },
+                '1': { add: 1, sum: 4 },
+                '2': { add: 1, sum: 5 },
+              },
             },
             objectConfig: {
               start: 3,
@@ -419,7 +443,7 @@ describe('createRampMinStartVal', () => {
           expect(res).toEqual({
             // even a start value need any parent number
             changeSumAll: 9,
-            res: { '0': { add: 9 } },
+            res: { data: { '0': { add: 9 } } },
           })
         })
 
@@ -427,9 +451,11 @@ describe('createRampMinStartVal', () => {
           const res = createRampMinStartVal({
             iterations: 5,
             parentTimeRamp: {
-              '0': { add: 3, sum: 3 },
-              '1': { add: 1, sum: 4 },
-              '2': { add: 1, sum: 5 },
+              data: {
+                '0': { add: 3, sum: 3 },
+                '1': { add: 1, sum: 4 },
+                '2': { add: 1, sum: 5 },
+              },
             },
             objectConfig: {
               start: 3,
@@ -442,7 +468,7 @@ describe('createRampMinStartVal', () => {
           expect(res).toEqual({
             // even a start value need any parent number
             changeSumAll: 9,
-            res: { '0': { add: 9 } },
+            res: { data: { '0': { add: 9 } } },
           })
         })
       })
@@ -453,10 +479,12 @@ describe('createRampMinStartVal', () => {
       const res = createRampMinStartVal({
         iterations: 5,
         parentTimeRamp: {
-          '0': { add: 3, sum: 3 },
-          '1': { add: 1, sum: 4 },
-          '2': { add: 1, sum: 5 },
-          '3': { add: 2, sum: 5 },
+          data: {
+            '0': { add: 3, sum: 3 },
+            '1': { add: 1, sum: 4 },
+            '2': { add: 1, sum: 5 },
+            '3': { add: 2, sum: 5 },
+          },
         },
         objectConfig: {
           start: 3,
@@ -469,11 +497,13 @@ describe('createRampMinStartVal', () => {
       expect(res).toEqual({
         changeSumAll: 47,
         res: {
-          '0': { add: 9 },
-          '1': { add: 8 },
-          '2': { add: 10 },
-          '3': { add: 10 },
-          '4': { add: 10 },
+          data: {
+            '0': { add: 9 },
+            '1': { add: 8 },
+            '2': { add: 10 },
+            '3': { add: 10 },
+            '4': { add: 10 },
+          },
         },
       })
     })
@@ -484,59 +514,71 @@ describe('createSum', () => {
   describe('for root object', () => {
     it('right iteration order', () => {
       const ramp = {
-        '0': { add: 3 },
-        '1': { add: 2 },
-        '2': { add: 1 },
-        '3': { add: 5 },
+        data: {
+          '0': { add: 3 },
+          '1': { add: 2 },
+          '2': { add: 1 },
+          '3': { add: 5 },
+        },
       }
-      const resSum = createSum({ ramp })
-      expect(resSum).toEqual(11)
+      createSum({ ramp })
+      expect(ramp.sum).toEqual(11)
     })
     it('wrong iteration order', () => {
       const ramp = {
-        '0': { add: 3 },
-        '3': { add: 5 },
-        '2': { add: 1 },
-        '1': { add: 2 },
+        data: {
+          '0': { add: 3 },
+          '3': { add: 5 },
+          '2': { add: 1 },
+          '1': { add: 2 },
+        },
       }
-      const resSum = createSum({ ramp })
-      expect(resSum).toEqual(11)
+      createSum({ ramp })
+      expect(ramp.sum).toEqual(11)
     })
     it('with gaps', () => {
-      const ramp = { '0': { add: 3 }, '2': { add: 3 }, '3': { add: 5 } }
-      const resSum = createSum({ ramp })
-      expect(resSum).toEqual(11)
+      const ramp = {
+        data: { '0': { add: 3 }, '2': { add: 3 }, '3': { add: 5 } },
+      }
+      createSum({ ramp })
+      expect(ramp.sum).toEqual(11)
     })
   })
   describe('for child object', () => {
     it('right iteration order', () => {
       const ramp = {
-        '0': { add: 3 },
-        '1': { add: 2 },
-        '2': { add: 1 },
-        '3': { add: 5 },
+        data: {
+          '0': { add: 3 },
+          '1': { add: 2 },
+          '2': { add: 1 },
+          '3': { add: 5 },
+        },
       }
-      const resSum = createSum({ ramp })
-      expect(resSum).toEqual(11)
+      createSum({ ramp })
+      expect(ramp.sum).toEqual(11)
     })
     it('wrong iteration order', () => {
       const ramp = {
-        '0': { add: 3 },
-        '2': { add: 1 },
-        '3': { add: 5 },
-        '1': { add: 2 },
+        data: {
+          '0': { add: 3 },
+          '2': { add: 1 },
+          '3': { add: 5 },
+          '1': { add: 2 },
+        },
       }
-      const resSum = createSum({ ramp })
-      expect(resSum).toEqual(11)
+      createSum({ ramp })
+      expect(ramp.sum).toEqual(11)
     })
     it('with gaps', () => {
       const ramp = {
-        '0': { add: 3 },
-        '1': { add: 2 },
-        '3': { add: 6 },
+        data: {
+          '0': { add: 3 },
+          '1': { add: 2 },
+          '3': { add: 6 },
+        },
       }
-      const resSum = createSum({ ramp })
-      expect(resSum).toEqual(11)
+      createSum({ ramp })
+      expect(ramp.sum).toEqual(11)
     })
   })
 })
@@ -569,40 +611,42 @@ describe('getAveragePerIteration', () => {
 
 describe('mergeResult', () => {
   it('newResult undefined', () => {
-    const result = { '1': { add: 5, sum: 7 } }
+    const result = { data: { '1': { add: 5, sum: 7 } } }
     mergeResult({ iteration: 1, result, newResult: undefined })
-    expect(result).toEqual({ '1': { add: 5, sum: 7 } })
+    expect(result).toEqual({ data: { '1': { add: 5, sum: 7 } } })
   })
 
   it('newResult.add undefined', () => {
-    const result = { '1': { add: 5, sum: 7 } }
+    const result = { data: { '1': { add: 5, sum: 7 } } }
     const newResult = { sum: 10 }
     mergeResult({ iteration: 1, result, newResult })
-    expect(result).toEqual({ '1': { add: 5, sum: 7 } })
+    expect(result).toEqual({ data: { '1': { add: 5, sum: 7 } } })
   })
 
   it('result for iteration is undefined', () => {
-    const result = { '1': { add: 5, sum: 7 } }
+    const result = { data: { '1': { add: 5, sum: 7 } } }
     const newResult = { sum: 10, add: 3 }
     mergeResult({ iteration: 2, result, newResult })
     expect(result).toEqual({
-      '1': { add: 5, sum: 7 },
-      '2': { add: 3, sum: 10 },
+      data: {
+        '1': { add: 5, sum: 7 },
+        '2': { add: 3, sum: 10 },
+      },
     })
   })
 
   it('result.add for iteration is undefined', () => {
-    const result = { '1': { sum: 7 } }
+    const result = { data: { '1': { sum: 7 } } }
     const newResult = { sum: 10, add: 3 }
     mergeResult({ iteration: 1, result, newResult })
-    expect(result).toEqual({ '1': { add: 3, sum: 7 } })
+    expect(result).toEqual({ data: { '1': { add: 3, sum: 7 } } })
   })
 
   it('result.add adn newResult.add', () => {
-    const result = { '1': { sum: 7, add: 3 } }
+    const result = { data: { '1': { sum: 7, add: 3 } } }
     const newResult = { sum: 10, add: 3 }
     mergeResult({ iteration: 1, result, newResult })
-    expect(result).toEqual({ '1': { add: 6, sum: 7 } })
+    expect(result).toEqual({ data: { '1': { add: 6, sum: 7 } } })
   })
 
   it('both undefined', () => {
@@ -748,133 +792,3 @@ describe('createMinVal', () => {
     expect(res).toEqual(undefined)
   })
 })
-
-/**
- * Prints the result in readable format
- */
-// eslint-disable-next-line no-unused-vars
-function printMe(dat) {
-  const lines = []
-  lines.push(`{`)
-  Object.keys(dat).forEach(objName => {
-    lines.push(`	"${objName}":{`)
-    Object.keys(dat[objName]).forEach(iter => {
-      const val = dat[objName][iter]
-      lines.push(`	  "${iter}":${JSON.stringify(val)},`)
-    })
-    lines.push(`	},`)
-  })
-  lines.push(`}`)
-
-  return lines.join('\n')
-}
-
-// eslint-disable-next-line no-unused-vars
-const TIME_SHIFT = {
-  iterations: 10,
-  changes: {
-    company: {
-      start: 1,
-      end: 10,
-      min: 0,
-      max: 5,
-    },
-    user: {
-      start: 1,
-      end: 25,
-      type: 'perParent',
-      min: 1,
-    },
-    account: {
-      end: 30,
-      min: 1,
-      type: 'perParent',
-    },
-    statement: {
-      type: 'perIteration',
-      min: 1,
-      max: 1,
-    },
-    transaction: {
-      type: 'perParent',
-      min: 0,
-      max: 10,
-    },
-    beneficary: {
-      start: 2,
-      end: 40,
-      type: 'perParent',
-      min: 1,
-    },
-    gumbo: {
-      start: 0,
-      end: 20,
-      min: 0,
-    },
-    bazong: {
-      start: 0,
-      end: 60,
-      min: 0,
-    },
-    flup: {
-      start: 0,
-      end: 250,
-      min: 0,
-    },
-    bank: {
-      end: 15,
-    },
-  },
-}
-
-// eslint-disable-next-line no-unused-vars
-const GENERATION_ORDER = {
-  company: {
-    children: {
-      user: {
-        links: {
-          flup: {
-            where:"user.parent.account.bazong = flup.parent"
-            target:1
-          }
-      },
-      beneficary: {},
-      account: {
-        links: {
-          bazong: {},
-        },
-        children: {
-          statement: {
-            children: {
-              transaction: {
-                links: {
-                  beneficary: {
-                    where:"transaction.parent.parent.parent = beneficary.parent"
-                    target:1
-                  },
-                  flup: {
-                    where:"transaction.parent.parent.bazong = flup.parent"
-                    target:{
-                      min: 2,
-                      max: 10
-                    }
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-  gumbo: {
-    children: {
-      bazong: {
-        children: {
-          flup: {},
-        },
-      },
-    },
-  },
-  bank: {},
-}

@@ -4,8 +4,7 @@
     ["env",
       {
         "targets":{
-          "node":7,
-          "browsers": ["last 2 versions", "safari >= 7"]
+          "node":7
         }
       },
     ]

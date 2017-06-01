@@ -1,0 +1,51 @@
+{
+  "company": {
+    "children": {
+      "user": {
+        "links": {
+          "flup": {
+            "where": "user.parent.account.bazong = flup.parent",
+            "target": 1
+          }
+        }
+      },
+      "beneficary": {},
+      "account": {
+        "links": {
+          "bazong": {}
+        },
+        "children": {
+          "statement": {
+            "children": {
+              "transaction": {
+                "links": {
+                  "beneficary": {
+                    "where": "transaction.parent.parent.parent = beneficary.parent",
+                    "target": 1
+                  },
+                  "flup": {
+                    "where": "transaction.parent.parent.bazong = flup.parent",
+                    "target": {
+                      "min": 2,
+                      "max": 10
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "gumbo": {
+    "children": {
+      "bazong": {
+        "children": {
+          "flup": {}
+        }
+      }
+    }
+  },
+  "bank": {}
+}
