@@ -17,6 +17,8 @@
 
 =====
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/xhubio/graph-tdg-model.svg)](https://greenkeeper.io/)
+
 
 
 API Reference
