@@ -70,7 +70,6 @@
     "eslint-config-prettier": "^2.1.0",
     "eslint-plugin-babel": "^4.0.0",
     "eslint-plugin-mocha": "^4.8.0",
-    "flow-bin": "^0.56.0",
     "jest": "^22.0.5",
     "jest-cli": "^22.0.5",
     "jest-environment-node-debug": "^2.0.0",
