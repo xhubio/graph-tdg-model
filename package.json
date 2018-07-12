@@ -57,7 +57,7 @@
   "devDependencies": {
     "assert": "^1.4.1",
     "babel-cli": "^6.24.1",
-    "babel-eslint": "^8.2.1",
+    "babel-eslint": "^8.2.6",
     "babel-jest": "^22.2.2",
     "babel-node-debug": "^2.0.0",
     "babel-plugin-transform-object-rest-spread": "^6.19.0",
