@@ -69,7 +69,7 @@
     "eslint": "^4.19.0",
     "eslint-config-prettier": "^2.1.0",
     "eslint-plugin-babel": "^5.0.0",
-    "eslint-plugin-mocha": "^5.0.0",
+    "eslint-plugin-mocha": "^5.2.0",
     "jest": "^22.0.5",
     "jest-cli": "^22.3.0",
     "jest-environment-node-debug": "^2.0.0",
