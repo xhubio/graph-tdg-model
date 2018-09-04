@@ -79,6 +79,6 @@
     "semantic-release": "^15.0.0"
   },
   "dependencies": {
-    "winston": "^2.4.2"
+    "winston": "^3.1.0"
   }
 }
